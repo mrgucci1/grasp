@@ -79,7 +79,7 @@ Post the plan summary:
 
 1. **Decisions:** a table with columns `D#`, decision, choice, and why. Use the user's own words where they gave a reason.
 2. **Build steps:** 7 or fewer, in order.
-3. **Your parts:** 2–4 pieces where the user's choices shape behavior (business logic, error handling, a data structure, a tricky condition). Each is 5–25 lines, with its `file` and function. `grasp-guide` hands these to the user. Leave this out in grasp's fast mode.
+3. **Your parts:** 2–4 pieces where the user's choices shape behavior (business logic, error handling, a data structure, a tricky condition). Each is 5–25 lines, with its `file` and function. `grasp-guide` hands these to the user. Leave this out in grasp's fast and auto modes.
 
 Ask: "Confirm, or change anything?" **Write no code until the user confirms.**
 
@@ -102,7 +102,17 @@ If the journal doesn't exist, create it with the sections Status, Task, Decision
   - Rejected: B would repeat side effects · C duplicates the policy
   - Revisit if: we add non-idempotent POSTs
   ```
+  Label every reason with whose it is:
+  - `Why (user): "…"` is the user's reason, in their words.
+  - `Why (agent): … · approved by user` means the user accepted your pick with a plain `rec`.
+  - `Why (agent): …` means you made the call without asking (see *Auto mode*). If it's 🔒, add `· unconfirmed` to its heading.
 - **Plan:** the build steps, plus your parts as `H1 · file · function · what`.
 - **Status:** tick `grill`.
 
 If you're running on your own rather than inside grasp, finish by offering one next step: "Build it with `grasp-guide` (you write the key parts), or shall I build it?"
+
+## Auto mode
+
+In grasp's auto mode the user answers every question now, then leaves the rest to you. Run steps 1–5 as usual, and end the plan summary with: "Confirm, and I'll build it, write the explainer and update the journal without stopping again."
+
+If no one can reply (a non-interactive run, for example) or the user said not to ask, make each call yourself and record it as `Why (agent)`. Then post the plan summary and go on without waiting for a confirmation.

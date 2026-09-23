@@ -47,6 +47,8 @@ Replace `{{TITLE}}` and `{{META}}`, then fill in every `<!-- FILL: … -->` bloc
    - an excerpt pasted from real `git diff` output (never retyped from memory) inside `<pre class="diff"><code>`
    - the `you wrote this · H#` badge on the user's own parts
 5. **Decisions and trade-offs.** One row per `D#`: chosen, rejected and why. If a reason isn't in the journal, wrap it in `<span class="inferred">inferred: …</span>`. Never present a guess as the recorded rationale.
+   - If the journal says `Why (agent)`, the reason is the agent's. Start the cell with `<span class="badge agent">agent</span>`.
+   - If the decision is marked `unconfirmed`, add `<span class="badge unconfirmed">unconfirmed</span>`.
 6. **Risks and checks.** Where it could break, what the tests cover, and what they don't.
 7. **Terms** (optional). Up to 5 concepts the reader may not know, one line each. Otherwise delete the section.
 
@@ -68,4 +70,4 @@ Page rules:
    - Add to *Explain*: `explain.html · <yyyy-mm-dd> · base <short sha>`.
    - Tick `explain` in *Status*.
 
-Then tell the user: "Skim it: the diagram, then the reading order (≈5 min). Say `ready` for the quiz." If you're running on your own rather than inside grasp, end with: "Want to be quizzed on it? That's `grasp-quiz`."
+Then tell the user: "Skim it: the diagram, then the reading order (≈5 min). Say `ready` for the quiz." If you're running on your own rather than inside grasp, end with: "Want to be quizzed on it? That's `grasp-quiz`." In grasp's auto mode, skip this message and go straight to grasp's wrap-up.

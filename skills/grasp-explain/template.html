@@ -57,6 +57,8 @@
   .loc{font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:5px}
   .badge{font:600 11px/1 ui-monospace,Consolas,monospace;padding:4px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
   .badge.you{background:var(--you-bg);color:var(--you)}
+  .badge.agent{background:var(--code-bg);color:var(--muted)}
+  .badge.unconfirmed{background:var(--del-bg);color:var(--del)}
   .stop p{margin:2px 0}
   pre.diff{margin:8px 0 0;background:var(--code-bg);border-radius:8px;padding:10px 0;overflow-x:auto;font-size:13px;line-height:1.5}
   pre.diff .ln{display:block;padding:0 12px;white-space:pre}
@@ -171,7 +173,7 @@ sequenceDiagram
 
   <section id="decisions">
     <h2>Decisions and trade-offs</h2>
-    <!-- FILL: one row per D#; wrap reasons that aren't in the journal in <span class="inferred">inferred: …</span> -->
+    <!-- FILL: one row per D#; wrap reasons that aren't in the journal in <span class="inferred">inferred: …</span>; start a Why cell with <span class="badge agent">agent</span> when the journal says Why (agent), and add <span class="badge unconfirmed">unconfirmed</span> when it says unconfirmed -->
     <div class="table-wrap">
       <table>
         <thead><tr><th>#</th><th>Decision</th><th>Chosen</th><th>Rejected</th><th>Why</th></tr></thead>

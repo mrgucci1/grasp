@@ -40,7 +40,7 @@ Stop as soon as you have a recorded answer.
 
 Keep it to 10 lines or fewer.
 
-- **Recorded:** the reason as written at the time, with its source: the journal path and `D#`, or the commit and date.
+- **Recorded:** the reason as written at the time, with its source: the journal path and `D#`, or the commit and date. Say whose reason it is. `Why (user)` is the user's own. `Why (agent)` is the agent's, either accepted by the user with `rec` (`approved by user`) or never shown to them. If the decision is marked `unconfirmed`, say that nobody reviewed it.
 - **Inferred:** use this only if nothing was recorded, and label it, e.g. "inferred from the code and tests: …".
 - **Unknown:** say that nothing was recorded. Point to the blame author as the person to ask, or to where else to look.
 - **Last line:** one plain sentence the user could say to a colleague.
