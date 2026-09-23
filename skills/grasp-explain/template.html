@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}} · grasp</title>
+<!--
+  grasp-explain template. Fill in:
+    {{TITLE}}  short name of the change, e.g. "Add retries to the HTTP client"
+    {{META}}   "<repo> · <branch> · <yyyy-mm-dd> · base <short sha> → working tree"
+  and replace the example content inside every FILL block. Delete optional sections you don't use.
+  HTML-escape all code (& → &amp;  < → &lt;  > → &gt;). This file lives under ~/.grasp, never in the repo.
+-->
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1b1f24; --muted:#5b6470; --rule:#dde1e6;
+    --accent:#2f6fde; --code-bg:#f0f2f5;
+    --add:#1a7f37; --add-bg:#e6f4ea; --del:#b42318; --del-bg:#fdecea; --hunk:#6e56cf;
+    --you:#8a4b00; --you-bg:#fff0d6;
+    --low:#1a7f37; --med:#9a6700; --high:#b42318;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1216; --card:#161a20; --ink:#e6e9ee; --muted:#9aa4b1; --rule:#2a313a;
+      --accent:#7aa7ff; --code-bg:#1b2027;
+      --add:#56d364; --add-bg:#12261a; --del:#ff7b72; --del-bg:#2d1416; --hunk:#b3a4ff;
+      --you:#ffb454; --you-bg:#33240d;
+      --low:#56d364; --med:#e3b341; --high:#ff7b72;
+      color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  main{max-width:920px;margin:0 auto;padding:32px 20px 64px}
+  code,pre{font-family:ui-monospace,"Cascadia Code","SF Mono",Consolas,monospace;font-variant-ligatures:none}
+  a{color:var(--accent)}
+  h1{font-size:30px;line-height:1.2;margin:6px 0 4px;text-wrap:balance}
+  h2{font-size:20px;margin:0 0 12px}
+  .eyebrow{font:12px/1 ui-monospace,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .meta{color:var(--muted);margin:0;font-size:14px}
+  nav{display:flex;flex-wrap:wrap;gap:6px 16px;margin:16px 0 4px;font-size:14px}
+  nav a{text-decoration:none}
+  section{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:20px;margin-top:16px;scroll-margin-top:12px}
+  .hint{color:var(--muted);font-size:13px;margin:-6px 0 12px}
+  .tldr{margin:0;padding-left:18px;display:grid;gap:4px}
+  .risk{font:600 11px/1 ui-monospace,Consolas,monospace;text-transform:uppercase;letter-spacing:.05em;padding:3px 7px;border-radius:999px;border:1px solid currentColor;vertical-align:1px}
+  .risk.low{color:var(--low)} .risk.med{color:var(--med)} .risk.high{color:var(--high)}
+  pre.mermaid{margin:0;text-align:center;overflow-x:auto;background:transparent;color:var(--muted)}
+  pre.mermaid.fallback{text-align:left;background:var(--code-bg);color:var(--ink);padding:12px;border-radius:8px;white-space:pre-wrap;font-size:13px}
+  pre.mermaid.fallback::before{content:"Diagram source (the renderer couldn't draw it)";display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+  .stops{list-style:none;counter-reset:stop;margin:0;padding:0;display:grid;gap:18px}
+  .stop{counter-increment:stop;border-top:1px solid var(--rule);padding-top:14px}
+  .stop:first-child{border-top:0;padding-top:0}
+  .stop-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px}
+  .stop-head::before{content:counter(stop);font:600 12px/1 ui-monospace,Consolas,monospace;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--code-bg);color:var(--muted)}
+  .loc{font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:5px}
+  .badge{font:600 11px/1 ui-monospace,Consolas,monospace;padding:4px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+  .badge.you{background:var(--you-bg);color:var(--you)}
+  .stop p{margin:2px 0}
+  pre.diff{margin:8px 0 0;background:var(--code-bg);border-radius:8px;padding:10px 0;overflow-x:auto;font-size:13px;line-height:1.5}
+  pre.diff .ln{display:block;padding:0 12px;white-space:pre}
+  pre.diff .add{background:var(--add-bg);color:var(--add)}
+  pre.diff .del{background:var(--del-bg);color:var(--del)}
+  pre.diff .hunk{color:var(--hunk)}
+  .table-wrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--rule)}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+  td:first-child{font-family:ui-monospace,Consolas,monospace;white-space:nowrap}
+  .inferred{color:var(--muted);font-style:italic}
+  .risks{margin:0;padding-left:18px;display:grid;gap:8px}
+  .ok{color:var(--low);font-weight:600} .gap{color:var(--med);font-weight:600}
+  dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 16px}
+  dt{font-weight:600} dd{margin:0;color:var(--muted)}
+  footer{color:var(--muted);font-size:13px;margin-top:24px;text-align:center}
+  @media (max-width:600px){dl{grid-template-columns:1fr} h1{font-size:25px}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">grasp · explain</div>
+    <h1>{{TITLE}}</h1>
+    <p class="meta">{{META}}</p>
+    <nav>
+      <a href="#tldr">TL;DR</a><a href="#shape">Before → after</a><a href="#flow">Runtime flow</a>
+      <a href="#read">Reading order</a><a href="#decisions">Decisions</a><a href="#risks">Risks</a><a href="#terms">Terms</a>
+    </nav>
+  </header>
+
+  <section id="tldr">
+    <h2>TL;DR</h2>
+    <!-- FILL: tldr (what · why · risk) -->
+    <ul class="tldr">
+      <li><b>What:</b> Failed upstream calls are retried up to 3 times with backoff, inside the HTTP client.</li>
+      <li><b>Why:</b> Sync jobs were failing on brief upstream blips; see D1 and D2.</li>
+      <li><b>Risk:</b> <span class="risk med">med</span> retries add latency and could amplify an outage.</li>
+    </ul>
+    <!-- /FILL -->
+  </section>
+
+  <section id="shape">
+    <h2>Before → after</h2>
+    <p class="hint">Green = added · amber = changed · red = removed</p>
+    <!-- FILL: flowchart; keep the three classDef lines -->
+    <pre class="mermaid">
+flowchart LR
+  Job["SyncJob.run()"] -->|request| Client["HttpClient.send()"]:::changed
+  Client -->|5xx or timeout| Policy["shouldRetry()"]:::added
+  Policy -->|wait, then retry| Client
+  Client -->|response| Job
+  classDef added fill:#e6f4ea,stroke:#1a7f37,color:#1b1f24
+  classDef changed fill:#fff0d6,stroke:#9a6700,color:#1b1f24
+  classDef removed fill:#fdecea,stroke:#b42318,color:#1b1f24,stroke-dasharray:4 3
+    </pre>
+    <!-- /FILL -->
+  </section>
+
+  <section id="flow">
+    <h2>Runtime flow</h2>
+    <!-- FILL: sequenceDiagram of the main path; delete this section if nothing runs -->
+    <pre class="mermaid">
+sequenceDiagram
+  participant J as SyncJob
+  participant C as HttpClient
+  participant P as shouldRetry
+  J->>C: send(request)
+  C-->>C: upstream returns 503
+  C->>P: shouldRetry(err, attempt=1)
+  P-->>C: true
+  C-->>C: wait 200 ms, resend
+  C-->>J: 200 OK
+    </pre>
+    <!-- /FILL -->
+  </section>
+
+  <section id="read">
+    <h2>Reading order</h2>
+    <p class="hint">Read the stops in order. Excerpts are copied from the real diff.</p>
+    <!-- FILL: 3–8 stops; excerpts pasted from git diff output, HTML-escaped -->
+    <ol class="stops">
+      <li class="stop">
+        <div class="stop-head"><code class="loc">src/http/retry.ts:1-9</code><span class="badge you">you wrote this · H1</span></div>
+        <p><b>What:</b> Decides whether a failed request is worth another try.</p>
+        <p><b>Why this shape:</b> Only server errors and timeouts retry; client errors never will (<a href="#d1">D1</a>).</p>
+        <pre class="diff"><code>@@ -0,0 +1,6 @@
++export function shouldRetry(err: HttpError, attempt: number): boolean {
++  if (attempt &gt;= MAX_ATTEMPTS) return false;
++  if (err.code === 'ETIMEDOUT') return true;
++  return err.status &gt;= 500 &amp;&amp; err.status !== 501;
++}</code></pre>
+      </li>
+      <li class="stop">
+        <div class="stop-head"><code class="loc">src/http/client.ts:40-58</code></div>
+        <p><b>What:</b> The send loop now asks the policy before giving up.</p>
+        <p><b>Why this shape:</b> Retries live in one place, so jobs stay unaware of them (<a href="#d2">D2</a>).</p>
+        <pre class="diff"><code>@@ -40,7 +40,12 @@ export class HttpClient {
+   async send(req: Request): Promise&lt;Response&gt; {
+-    return this.transport.send(req);
++    for (let attempt = 1; ; attempt++) {
++      try { return await this.transport.send(req); }
++      catch (err) { if (!shouldRetry(err, attempt)) throw err; }
++      await sleep(backoff(attempt));
++    }
+   }</code></pre>
+      </li>
+    </ol>
+    <!-- /FILL -->
+  </section>
+
+  <section id="decisions">
+    <h2>Decisions and trade-offs</h2>
+    <!-- FILL: one row per D#; wrap reasons that aren't in the journal in <span class="inferred">inferred: …</span> -->
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Decision</th><th>Chosen</th><th>Rejected</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr id="d1"><td>D1</td><td>What counts as retryable</td><td>5xx (except 501) and timeouts</td><td>Any error: would retry bad requests forever</td><td>Only transient failures can succeed on a retry.</td></tr>
+          <tr id="d2"><td>D2</td><td>Where retries live</td><td>HTTP client wrapper</td><td>Job runner: repeats side effects · per call site: duplicated policy</td><td>"One place to tune; jobs aren't idempotent."</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- /FILL -->
+  </section>
+
+  <section id="risks">
+    <h2>Risks and checks</h2>
+    <!-- FILL -->
+    <ul class="risks">
+      <li><b>Retry storms</b> if upstream stays down. <span class="ok">Covered:</span> client.spec.ts caps attempts at 3. <span class="gap">Not covered:</span> jitter under load.</li>
+      <li><b>Slower failures:</b> a dead upstream now takes ~1.4 s to fail instead of ~0.2 s. <span class="gap">Not covered:</span> job timeout budget.</li>
+    </ul>
+    <!-- /FILL -->
+  </section>
+
+  <section id="terms">
+    <h2>Terms</h2>
+    <!-- FILL (optional; delete this section and its nav link if unused) -->
+    <dl>
+      <dt>Idempotent</dt><dd>Safe to repeat: doing it twice has the same effect as doing it once.</dd>
+      <dt>Backoff</dt><dd>Waiting longer between each retry so a struggling service can recover.</dd>
+    </dl>
+    <!-- /FILL -->
+  </section>
+
+  <footer>Made by grasp-explain · private file under ~/.grasp, not part of the repo</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  // Colour unified-diff lines: +added, -removed, @@ hunk headers.
+  document.querySelectorAll('pre.diff code').forEach(function (code) {
+    code.innerHTML = code.innerHTML.replace(/\n$/, '').split('\n').map(function (line) {
+      var c = line.charAt(0);
+      var cls = line.indexOf('@@') === 0 ? 'hunk' : c === '+' ? 'add' : c === '-' ? 'del' : 'ctx';
+      return '<span class="ln ' + cls + '">' + (line || ' ') + '</span>';
+    }).join('');
+  });
+
+  // Render Mermaid diagrams; if the CDN is unreachable or a diagram has a syntax error, show its source instead.
+  var blocks = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  function fallback(b) { if (!b.querySelector('svg')) { b.textContent = b.dataset.src || b.textContent; b.classList.add('fallback'); } }
+  if (!window.mermaid) { blocks.forEach(fallback); return; }
+  blocks.forEach(function (b) { b.dataset.src = b.textContent; });
+  var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'strict', suppressErrorRendering: true });
+  mermaid.run({ nodes: blocks, suppressErrors: true })
+    .then(function () { blocks.forEach(fallback); })
+    .catch(function () { blocks.forEach(fallback); });
+})();
+</script>
+</body>
+</html>
