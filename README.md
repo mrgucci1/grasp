@@ -29,7 +29,7 @@ grill ──► build ──► explain ──► quiz ──► merge
 
 ## Install
 
-Requirements: git and a shell. Node 18+ builds the walkthrough and the optional quiz page; without it, the agent fills the walkthrough in by hand.
+Requirements: git and a shell. Node 18+ builds the walkthrough and the optional quiz page; without it, the agent fills the walkthrough in by hand. `pm` mode needs an agent that can start sub-agents; without one, the agent builds the task itself.
 
 Run the installer from this folder:
 
@@ -84,10 +84,10 @@ In auto mode, once you confirm the plan, the agent writes all the code and opens
 In pm mode, the agent is the project manager and sub-agents write the code. You stay in the loop at three points:
 
 1. **Before the build**, you confirm the split: the parts, the model that builds each, and the contracts between them.
-2. **During it**, a board in your journal shows who is building what, and each part that lands gets one line in chat.
+2. **During it**, a board in your journal shows who is building what, and each part that lands gets one line in chat. grasp asks you nothing unless every remaining part is blocked, so you can walk away.
 3. **After it**, every choice a sub-agent made that the plan didn't cover comes back as a dialog. You keep it, change it, or look at the code first.
 
-The walkthrough then follows the path across the parts, and the quiz asks about the contracts between them. Pick `Go, hands-off` at the split to skip the review and the quiz; `/grasp-pm review` goes through the sub-agents' choices whenever you're ready.
+The walkthrough then follows the path across the parts, and the quiz adds a question on one of the contracts and one on a sub-agent's choice. Pick `Go, hands-off` at the split to skip the review and the quiz; `/grasp-pm review` goes through the sub-agents' choices whenever you're ready.
 
 ## How grasp asks
 
@@ -97,7 +97,7 @@ Every question comes through your agent's question dialog, with the recommended 
 
 | File | Path under `~/.grasp/` |
 |---|---|
-| Journal | `<repo>/<branch>/journal.md` |
+| Journal | `<repo>/<branch>/journal.md`, which also holds the board in pm mode |
 | Walkthrough | `<repo>/<branch>/tour.json`, `explain.html` |
 | Quiz page | `<repo>/<branch>/quiz.json`, `quiz.html`, `quiz-result.json` |
 | Review deck | `deck.md` |
@@ -107,7 +107,7 @@ Set `GRASP_HOME` to keep them somewhere else.
 
 grasp writes nothing to your repo, commit messages, PR text, or code comments. The one exception is the `TODO(human)` task cards during the build step, and those are gone before the walkthrough is built. It never commits or pushes unless you ask, so your team's commit format stays as it is.
 
-The journal records each decision, the options you rejected, and your reasons in your own words. When you take the recommended option without giving a reason, it records the agent's reason and labels it as the agent's. `grasp-why` reads the journal when someone asks why the code looks the way it does, and says whose reason it's quoting.
+The journal records each decision, the options you rejected, and your reasons in your own words. When you take the recommended option without giving a reason, it records the agent's reason and labels it as the agent's. In pm mode it also records each choice a sub-agent made and which part made it, labelled as the agent's until you approve or change it. `grasp-why` reads the journal when someone asks why the code looks the way it does, and says whose reason it's quoting.
 
 ## Works well with Claude Code
 
@@ -126,6 +126,7 @@ The journal records each decision, the options you rejected, and your reasons in
 - The quiz's one-question-at-a-time follow-ups adapt rodbv's [`quiz-me`](https://github.com/rodbv/socratic-skills) (MIT).
 - The guided build is modeled on Claude Code's Learning output style, with its `TODO(human)` contributions and `★ Insight` notes.
 - The walkthrough draws on Geoffrey Litt's explain-diff and nicobailon's [visual-explainer](https://github.com/nicobailon/visual-explainer).
+- The brief that pm mode gives each sub-agent carries a short form of forrestchang's [karpathy-guidelines](https://github.com/forrestchang/andrej-karpathy-skills) (MIT): the least code that meets the goal, in the style of the code around it.
 
 ## Status
 
