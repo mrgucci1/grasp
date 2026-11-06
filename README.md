@@ -14,19 +14,21 @@ grill ──► build ──► explain ──► quiz ──► merge
   └─ dialogs: options + trade-offs + a recommendation; you make each call
 ```
 
+![One stop of a grasp walkthrough: the path through the change, the code with its data-in and data-out lines, and the decision behind it](docs/walkthrough.png)
+
 | Skill | What it does | Time |
 |---|---|---|
 | `grasp` | Runs the whole loop and keeps the journal. `/grasp` alone opens a menu. Add `fast` to skip the hands-on build, or `auto` to answer every design question up front and let the agent finish on its own, with no quiz. | 45–90 min, 15–20 min fast, 10–20 min up front for auto |
 | `grasp-grill` | Maps the decisions a task needs and asks them as dialogs, up to 3 per round. Each shows the options, their trade-offs, evidence from your code, and a recommendation. You make the call. | 10–20 min |
 | `grasp-guide` | Writes the scaffolding, puts a `TODO(human)` task card in the code where you write, and opens it in your editor. Quick actions add a hint, pseudocode or boilerplate, and the review asks questions before any fix. | 20–60 min |
-| `grasp-explain` | Builds a private walkthrough page that steps through the real code of the change, entry point to exit point. | 5 min to read |
+| `grasp-explain` | Builds a private walkthrough page that steps through the real code of the change, entry point to exit point. Each stop marks where data comes in and leaves, pins notes to lines, and opens in your editor. Supporting code is listed as skim-only, and the page is capped at 400 words. | 5 min to read |
 | `grasp-quiz` | Asks 5 multiple-choice questions (why, predict, break), one dialog at a time, with a follow-up on a miss. `page` opens them as a clickable page that sends the score back. The pass mark is 80%, and misses become review cards. | 5–10 min |
 | `grasp-teach` | Teaches one concept with examples from your codebase and a quick multiple-choice exercise. `review` runs the cards that are due (spaced repetition). | 5–10 min |
 | `grasp-why` | Answers "why is this code like this?" from your journals, git history, and past sessions, and keeps what was recorded apart from what it infers. | 1 min |
 
 ## Install
 
-Requirements: git, a shell, and Node 18+ for the walkthrough and the quiz page.
+Requirements: git and a shell. Node 18+ builds the walkthrough and the optional quiz page; without it, the agent fills the walkthrough in by hand.
 
 Run the installer from this folder:
 
@@ -77,7 +79,7 @@ In auto mode, once you confirm the plan, the agent writes all the code and opens
 
 ## How grasp asks
 
-Every question comes through your agent's question dialog, with the recommended option first: pick with the arrow keys and Enter. Choose Other to type your own answer or ask a question. 🔒 decisions, the hard-to-reverse ones, get one more question on why your choice wins.
+Every question comes through your agent's question dialog, with the recommended option first: pick with the arrow keys and Enter. Choose Other to type your own answer or ask a question. 🔒 decisions, the hard-to-reverse ones, get one more question on why your choice wins. Where an agent has no dialog, or blocks it in the current mode, grasp posts a numbered list and you reply with a number.
 
 ## Where your data lives
 
@@ -104,7 +106,7 @@ The journal records each decision, the options you rejected, and your reasons in
 
 - In Shen and Tamkin's 2026 trial at Anthropic, developers who asked "why" follow-up questions after generating code scored 86% on a later quiz, and those who only delegated scored 39%. The groups behind those two numbers were small.
 - In Sankaranarayanan's 2026 study, having to explain code back before merging cut failures on a later maintenance task, done without AI, from 77% to 39%.
-- Producing an answer builds memory better than rereading one (Bjork and Bjork's work on desirable difficulties), so grasp has you decide, write, and recall.
+- Producing an answer builds memory better than rereading one (Bjork and Bjork's work on desirable difficulties), so grasp has you decide, write, and answer questions about the change. The dialogs are multiple choice to keep it quick, which is easier than recalling from scratch. Choose Other to answer in your own words.
 
 ## Credits
 
@@ -115,7 +117,7 @@ The journal records each decision, the options you rejected, and your reasons in
 
 ## Status
 
-Version 0.2.0. On Windows with Claude Code, the walkthrough builder and its page, and the quiz page with its result hand-off, have been tested on a demo repo. The dialog-driven grill, guide and quiz flows are new and have not been run end to end yet. OpenCode, Codex and omp should pick the skills up, but none has been tried.
+Version 0.2.0. On Windows with Claude Code, the walkthrough builder and its page, and the quiz page with its result hand-off, have been tested on a demo repo. The dialog-driven grill, guide and quiz flows are new and have not been run end to end yet. OpenCode reads the same `~/.claude/skills` folder. Codex does not, so it needs the skills CLI step under *Install*. omp can load them from Claude Code's folder, though that may need switching on in its settings. None of the three has been tried.
 
 ## License
 
