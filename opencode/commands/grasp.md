@@ -1,4 +1,4 @@
 ---
-description: "Grill, build, explain, then quiz on a task; add fast or auto (grasp)"
+description: "Usage: /grasp TASK [full|fast|auto] · grill, build, explain, quiz on one task"
 ---
 Load the `grasp` skill with the skill tool and follow it. Task: $ARGUMENTS

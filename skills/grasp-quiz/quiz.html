@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz · grasp</title>
+<!-- grasp-quiz template. quiz.mjs fills the one placeholder in the quiz-data script below with the quiz JSON ("<" escaped). Do not open this file directly. -->
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1b1f24; --muted:#5b6470; --rule:#dde1e6;
+    --accent:#2f6fde; --code-bg:#f0f2f5;
+    --add:#1a7f37; --add-bg:#e6f4ea; --del:#b42318; --del-bg:#fdecea;
+    --med:#9a6700;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1216; --card:#161a20; --ink:#e6e9ee; --muted:#9aa4b1; --rule:#2a313a;
+      --accent:#7aa7ff; --code-bg:#1b2027;
+      --add:#56d364; --add-bg:#12261a; --del:#ff7b72; --del-bg:#2d1416;
+      --med:#e3b341;
+      color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  main{max-width:680px;margin:0 auto;padding:28px 20px 56px}
+  code,pre,kbd,textarea{font-family:ui-monospace,"Cascadia Code","SF Mono",Consolas,monospace;font-variant-ligatures:none}
+  h1{font-size:24px;line-height:1.25;margin:6px 0 16px;text-wrap:balance}
+  h2{font-size:18px;line-height:1.4;margin:0 0 12px}
+  .eyebrow{font:12px/1 ui-monospace,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  section{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:20px}
+  .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:var(--muted);font-size:14px}
+  .tag,.chip{font:600 11px/1 ui-monospace,Consolas,monospace;text-transform:uppercase;letter-spacing:.05em;padding:3px 7px;border-radius:999px;border:1px solid currentColor}
+  .chip.ok{color:var(--add)} .chip.warn{color:var(--med)}
+  pre.code{margin:0 0 14px;background:var(--code-bg);border-radius:8px;padding:10px 12px;overflow-x:auto;font-size:13px;line-height:1.5}
+  .opts{display:grid;gap:8px}
+  .opt{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:start;width:100%;text-align:left;font:inherit;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:9px 12px;cursor:pointer}
+  .opts:not(.locked) .opt:hover{border-color:var(--accent)}
+  .locked .opt{cursor:default}
+  .opt kbd{font-size:12px;width:22px;height:22px;display:grid;place-items:center;border-radius:5px;background:var(--code-bg);color:var(--muted)}
+  .opt em{font:600 11px/1.9 ui-monospace,Consolas,monospace;font-style:normal;text-transform:uppercase;letter-spacing:.04em}
+  .opt.right{border-color:var(--add);background:var(--add-bg);color:var(--add)}
+  .opt.wrong{border-color:var(--del);background:var(--del-bg);color:var(--del)}
+  .opt.dim{opacity:.55}
+  .hint,.note{color:var(--muted);font-size:14px;margin:12px 0 0}
+  .score .hint{margin:0}
+  .fb{margin-top:14px;padding:10px 12px;border-radius:8px;border:1px solid var(--rule);background:var(--code-bg);font-size:15px}
+  .fb p{margin:4px 0 0}
+  .fb b.ok{color:var(--add)} .fb b.bad{color:var(--del)}
+  .ref{font:12px/1.5 ui-monospace,Consolas,monospace;color:var(--muted)}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .btn{font:inherit;font-size:15px;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--card)}
+  .btn:disabled{opacity:.6;cursor:default}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .score{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+  .big{font-size:34px;font-weight:700;line-height:1.1}
+  .missed{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+  .missed li{border-top:1px solid var(--rule);padding-top:10px}
+  .missed p{margin:2px 0 0;font-size:15px}
+  .missed .because{color:var(--muted)}
+  textarea{display:block;width:100%;margin-top:6px;font-size:12px;color:var(--ink);background:var(--code-bg);border:1px solid var(--rule);border-radius:6px;padding:6px 8px}
+  @media (max-width:600px){h1{font-size:21px} section{padding:16px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">grasp · quiz</div>
+  <h1 id="title"></h1>
+  <section id="card"></section>
+</main>
+<script id="quiz-data" type="application/json">{{QUIZ}}</script>
+<script>
+const quiz = JSON.parse(document.getElementById('quiz-data').textContent);
+const qs = quiz.questions, n = qs.length, card = document.getElementById('card');
+// Shuffled once per page load. picked[] always holds the index in the ORIGINAL options order.
+const order = qs.map(q => {
+  const o = q.options.map((_, i) => i);
+  for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; }
+  return o;
+});
+const picked = [];
+let step = 0;
+document.title = quiz.title + ' · grasp';
+document.getElementById('title').textContent = quiz.title;
+
+const el = (tag, props, ...kids) => {
+  const e = Object.assign(document.createElement(tag), props);
+  e.append(...kids.filter(Boolean));
+  return e;
+};
+const payload = () => ({ answers: qs.map((q, i) => ({ id: q.id, picked: picked[i] })) });
+
+function pick(pos) {
+  if (picked[step] !== undefined) return;
+  picked[step] = order[step][pos];
+  render();
+  card.querySelector('.next').focus();
+}
+function next() { step++; render(); }
+function render() { card.replaceChildren(step < n ? question() : results()); }
+
+function question() {
+  const q = qs[step], done = picked[step] !== undefined, ok = picked[step] === q.answer;
+  const opts = order[step].map((oi, pos) => {
+    const state = !done ? '' : oi === q.answer ? 'right' : oi === picked[step] ? 'wrong' : 'dim';
+    const label = { right: 'correct', wrong: 'your pick' }[state] || '';
+    return el('button', { className: 'opt ' + state, onclick: () => pick(pos) },
+      el('kbd', { textContent: pos + 1 }), el('span', { textContent: q.options[oi] }), el('em', { textContent: label }));
+  });
+  return el('div', {},
+    el('div', { className: 'row' },
+      el('span', { textContent: (step + 1) + ' / ' + n }), el('span', { className: 'tag', textContent: q.type })),
+    el('h2', { textContent: q.q }),
+    q.code && el('pre', { className: 'code', textContent: q.code }),
+    el('div', { className: 'opts' + (done ? ' locked' : '') }, ...opts),
+    done
+      ? el('div', { className: 'fb' },
+          el('b', { className: ok ? 'ok' : 'bad', textContent: ok ? 'Correct.' : 'Not quite.' }),
+          el('p', { textContent: q.because }),
+          q.ref && el('p', { className: 'ref', textContent: q.ref }))
+      : el('p', { className: 'hint', textContent: 'Click an answer or press 1–' + q.options.length + '.' }),
+    done && el('div', { className: 'actions' },
+      el('button', { className: 'btn primary next', textContent: (step < n - 1 ? 'Next' : 'See results') + ' ↵', onclick: next })));
+}
+
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); }
+  catch {
+    const a = el('textarea', { value: t });
+    document.body.append(a); a.select();
+    const ok = document.execCommand('copy');
+    a.remove();
+    if (!ok) throw new Error('copy blocked');
+  }
+}
+
+function results() {
+  const missed = qs.filter((q, i) => picked[i] !== q.answer);
+  const score = n - missed.length, pass = score / n >= quiz.pass;
+  const note = el('p', { className: 'note' });
+  const copy = el('button', { className: 'btn', textContent: 'Copy results', onclick: async () => {
+    const text = 'grasp-quiz result ' + JSON.stringify(payload());
+    try { await copyText(text); note.textContent = 'Copied. Paste it into the chat.'; }
+    catch {
+      const ta = el('textarea', { readOnly: true, rows: 3, value: text });
+      note.replaceChildren('Copy was blocked. Select and copy this text:', ta);
+      ta.select();
+    }
+  } });
+  const send = el('button', { className: 'btn primary', textContent: 'Send to agent', onclick: async () => {
+    send.disabled = true;
+    try {
+      const r = await fetch(location.pathname.replace(/\/$/, '') + '/result',
+        { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload()) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      note.textContent = 'Sent. Go back to your terminal.';
+    } catch { fallback('Could not reach the agent. Copy the results and paste them into the chat.'); }
+  } });
+  const fallback = msg => { send.hidden = true; copy.className = 'btn primary'; note.textContent = msg; };
+  if (location.protocol === 'file:') fallback('Opened as a file, so it cannot reach the agent. Copy the results and paste them into the chat.');
+  return el('div', {},
+    el('div', { className: 'score' },
+      el('span', { className: 'big', textContent: score + ' / ' + n }),
+      el('span', { textContent: Math.round(100 * score / n) + '%' }),
+      el('span', { className: 'chip ' + (pass ? 'ok' : 'warn'), textContent: pass ? 'Passed' : 'Not yet' }),
+      el('span', { className: 'hint', textContent: 'Pass mark ' + Math.round(100 * quiz.pass) + '%' })),
+    el('div', { className: 'actions' }, send, copy),
+    note,
+    missed.length
+      ? el('div', {}, el('h2', { textContent: 'Missed' }),
+          el('ul', { className: 'missed' }, ...missed.map(q => el('li', {},
+            el('b', { textContent: q.q }),
+            el('p', { textContent: 'Answer: ' + q.options[q.answer] }),
+            el('p', { className: 'because', textContent: q.because })))))
+      : el('p', { textContent: 'No misses.' }));
+}
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || step >= n) return;
+  const done = picked[step] !== undefined;
+  if (!done && /^[1-4]$/.test(e.key) && +e.key <= qs[step].options.length) pick(+e.key - 1);
+  else if (done && e.key === 'Enter') { e.preventDefault(); next(); }
+});
+render();
+</script>
+</body>
+</html>

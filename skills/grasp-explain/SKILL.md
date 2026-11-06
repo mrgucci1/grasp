@@ -1,73 +1,97 @@
 ---
 name: grasp-explain
-description: Turn the current change into a visual, self-contained HTML explainer covering what changed and why, a before/after diagram, the runtime flow, a reading-order walkthrough of the real diff with the user's own parts marked, the decisions and trade-offs, and the risks. Saves it privately under ~/.grasp (never in the repo) and opens it in the browser. Use for "explain this change", "visualize the diff", "walk me through what changed", "explain everything", or as step 3 of grasp.
-argument-hint: "[base branch or commit range]"
+description: Step 3 · walk through the change on real code, entry point to exit point, one stop at a time. Builds a private, self-contained HTML walkthrough (code with decorations, Next and Prev, the key decisions, the risks) under ~/.grasp and opens it. Use for "explain this change", "walk me through what changed", "visualize the diff", "explain everything", or as step 3 of grasp.
+argument-hint: "[base branch | commit range]"
 license: MIT
 metadata:
   suite: grasp
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # grasp-explain
 
-Produce one HTML page that lets the user understand the change in about 5 minutes: first the picture, then the path through the code, then the reasons.
+You write a small `tour.json` (no code, no HTML). `build.mjs` reads the code from the working tree, marks the diff, enforces the word budgets and writes `explain.html`.
 
 ## 1. Gather
 
-- **Base.** Use the first of these that works:
-  1. `$ARGUMENTS`, if the user gave a base or range and it isn't a literal placeholder
-  2. `git merge-base HEAD origin/HEAD`
-  3. the merge-base with `main`
-  4. the merge-base with `master`
-- **Change:**
-  - `git diff <base> --stat` and `git diff <base>`. These include uncommitted work.
-  - New untracked files, from `git status --porcelain`.
-- **Why.** Read the journal at `<home>/<repo>/<branch>/journal.md`:
-  - `<home>` is `$GRASP_HOME`, or `~/.grasp` if that isn't set.
-  - `<repo>` is the git toplevel folder name, and `<branch>` has `/` replaced by `-`.
-  - Use its Decisions (`D#`), Plan and *Build log*. The user's own parts are the `H#` entries.
-- **Read before you draw.** Read each changed file around its hunks, identify the components touched, and trace the main runtime path the change affects.
+- **Base:** the first that works of `$ARGUMENTS` (if the user gave a base or range and it isn't a literal placeholder), `git merge-base HEAD origin/HEAD`, the merge-base with `main`, the merge-base with `master`.
+- **Change:** `git diff <base> --stat` and `git diff <base>` (these include uncommitted work), plus untracked files from `git status --porcelain`.
+- **Journal:** `<home>/<repo>/<branch>/journal.md`. `<home>` is `$GRASP_HOME`, or `~/.grasp` if that isn't set; `<repo>` is the git toplevel folder name; `<branch>` has `/` replaced by `-`. Use its Decisions (`D#`), Plan and *Build log*. The user's own parts are the `H#` entries.
 
-## 2. Build the page
+## 2. Trace the path
 
-Copy `template.html` to `<home>/<repo>/<branch>/explain.html`. The template sits next to this SKILL.md: `${CLAUDE_SKILL_DIR}/template.html` in Claude Code, usually `~/.claude/skills/grasp-explain/template.html`. If you can't find it, write the page yourself with the same sections.
+Read each changed file around its hunks, then follow the data through the change at runtime.
 
-Replace `{{TITLE}}` and `{{META}}`, then fill in every `<!-- FILL: … -->` block, replacing its example content:
+- **Entry** (first stop): where data comes in: a route handler, CLI command, event listener or public function.
+- **Steps:** each place the change transforms the data or decides something, in runtime order. Add an unchanged function only when the path runs through it and the reader needs it.
+- **Exit** (last stop): where the result leaves: a response, write, return or render.
+- 2 to 7 stops. If nothing runs (docs, config), use only `step` stops and set `"flow": false`.
+- Every other changed file goes in `offPath`: models, types, config, wiring, tests.
+- **Decisions:** the ones a stop references, plus every locked (🔒) one.
 
-1. **TL;DR.** Three lines: what changed, why, and the risk (`low`, `med` or `high`) with a one-phrase reason.
-2. **Before → after.** A Mermaid `flowchart` of the components and data flow involved:
-   - Mark nodes with `:::added`, `:::changed` or `:::removed`, and keep the template's `classDef` lines.
-   - Use 15 nodes or fewer.
-   - Label edges with what flows along them.
-3. **Runtime flow.** A Mermaid `sequenceDiagram` of the main path through the changed code. Delete this section if nothing runs, e.g. for docs or config-only changes.
-4. **Reading order.** 3–8 stops, in the order a newcomer should read them. Each stop has:
-   - the location as `file:line-range`
-   - what it does, in 1–2 lines
-   - why it's shaped this way, linking the relevant `D#`
-   - an excerpt pasted from real `git diff` output (never retyped from memory) inside `<pre class="diff"><code>`
-   - the `you wrote this · H#` badge on the user's own parts
-5. **Decisions and trade-offs.** One row per `D#`: chosen, rejected and why. If a reason isn't in the journal, wrap it in `<span class="inferred">inferred: …</span>`. Never present a guess as the recorded rationale.
-   - If the journal says `Why (agent)`, the reason is the agent's. Start the cell with `<span class="badge agent">agent</span>`.
-   - If the decision is marked `unconfirmed`, add `<span class="badge unconfirmed">unconfirmed</span>`.
-6. **Risks and checks.** Where it could break, what the tests cover, and what they don't.
-7. **Terms** (optional). Up to 5 concepts the reader may not know, one line each. Otherwise delete the section.
+## 3. Write tour.json
 
-Page rules:
+Save it as `<home>/<repo>/<branch>/tour.json`. Never write tour.json or explain.html into the repo.
 
-- HTML-escape all code: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`.
-- In Mermaid, quote labels that contain punctuation: `A["parse(input)"]`.
-- It must be readable in 5 minutes. Cut before you add.
+```json
+{
+  "title": "Add retries to the HTTP client",
+  "repo": "acme-api", "branch": "feat-retries", "date": "2026-11-06", "base": "a1b2c3d",
+  "what": "Failed upstream calls retry up to 3 times with backoff.",
+  "why": "Sync jobs were failing on brief upstream blips.",
+  "risk": { "level": "med", "note": "retries can amplify an outage" },
+  "stops": [
+    { "role": "entry", "at": "SyncJob.run()", "file": "src/jobs/sync.ts", "lines": [12, 30], "focus": [18, 22],
+      "title": "The job asks for data", "say": "SyncJob calls send() and knows nothing about retries.",
+      "in": { "line": 18, "label": "request: SyncRequest" }, "out": { "line": 22, "label": "HttpClient.send(req)" },
+      "notes": [ { "line": 20, "text": "no retry logic here" } ], "decision": "D2", "yours": "H1" }
+  ],
+  "decisions": [ { "id": "D2", "title": "Where retries live", "chose": "HTTP client wrapper", "over": "job runner",
+    "because": "jobs aren't idempotent", "by": "user", "locked": true, "unconfirmed": false } ],
+  "risks": [ { "text": "Retry storms if upstream stays down", "covered": "spec caps attempts at 3", "gap": "jitter under load" } ],
+  "offPath": [ { "file": "src/http/types.ts", "what": "HttpError type", "stat": "+12 -0" } ]
+}
+```
 
-## 3. Save and open
+- `role`: `entry`, `step` or `exit`. `file`: repo-relative, as git prints it. `at`: the function or route.
+- `lines`: the window shown. `focus`: the lit range inside it. Both are working-tree line numbers.
+- `in`: a labelled rule above its line, where data arrives. `out`: one below its line, where data leaves. Both optional.
+- `notes`: pinned to lines inside the window. `decision`: a `D#` from `decisions`. `yours`: the `H#` if the user wrote that code.
+- `by`: `user` for `Why (user)`, `agent-approved` for `Why (agent) · approved by user`, `agent` for `Why (agent)`. `locked`: 🔒. `unconfirmed`: as the journal marks it.
+- If the journal records no reason, write your best reason and set `"by": "agent", "unconfirmed": true`. Never present a guess as the user's reason.
+- `risks`: `covered` and `gap` are optional. `offPath[].stat` comes from `--stat`.
+- Plain words. Say what the code does at this stop, not what the reader will see.
 
-1. **Save** the page only under the grasp home. **Never write it into the repo.**
-2. **Open** it in the default browser, unless the user said not to or you're running non-interactively. Print the path either way.
-   - Windows: `Start-Process "<path>"` in PowerShell, or `start "" "<path>"`
-   - macOS: `open "<path>"`
-   - Linux: `xdg-open "<path>"`
-3. **Journal:**
-   - Replace *Files* with the `--stat` summary.
-   - Add to *Explain*: `explain.html · <yyyy-mm-dd> · base <short sha>`.
-   - Tick `explain` in *Status*.
+| Field | Budget |
+|---|---|
+| `what`, `why` | 14 words each |
+| `risk.note` | 8 words |
+| `stops` | 2 to 7 |
+| `at` | 40 characters |
+| stop `title` | 6 words |
+| `say` | 20 words |
+| `in.label`, `out.label` | 6 words |
+| `notes` | 3 per stop, 10 words each |
+| `lines` / `focus` | 30 / 15 lines |
+| `decisions` | 8; `chose` 6, `over` 8, `because` 12 words |
+| `risks` | 3; `text` 12, `covered` 8, `gap` 8 words |
+| `offPath` | 12 files; `what` 8 words |
+| the whole tour | 400 words |
 
-Then tell the user: "Skim it: the diagram, then the reading order (≈5 min). Say `ready` for the quiz." If you're running on your own rather than inside grasp, end with: "Want to be quizzed on it? That's `grasp-quiz`." In grasp's auto mode, skip this message and go straight to grasp's wrap-up.
+## 4. Build
+
+```
+node "<this skill's folder>/build.mjs" "<home>/<repo>/<branch>/tour.json"
+```
+
+- The folder is `${CLAUDE_SKILL_DIR}` in Claude Code, usually `~/.claude/skills/grasp-explain`. Run it from the repo root, or add `--repo <path>`.
+- If `<home>/settings.json` exists and has an `editor` value (`vscode`, `cursor` or `none`), pass it as `--editor`. Otherwise leave the flag off.
+- It writes `explain.html` next to tour.json and prints its path and word count. On exit 1 it lists every problem: fix them all, then run it again.
+
+No `node`? Copy `template.html` (beside this file) to `explain.html` next to tour.json, and replace `__TOUR__` with the tour JSON. Add to each stop `"status"` (`new`, `changed` or `context`) and `"code"`: the window's lines, copied exactly from the file. Keep the budgets by hand.
+
+## 5. Open, journal, hand back
+
+1. **Open** the page unless the user said not to or you're running non-interactively. Print the path either way. Windows: `Start-Process "<path>"` in PowerShell, or `start "" "<path>"`. macOS: `open "<path>"`. Linux: `xdg-open "<path>"`.
+2. **Journal:** replace *Files* with the `--stat` summary, add `explain.html · <yyyy-mm-dd> · base <short sha>` to *Explain*, and tick `explain` in *Status*.
+3. **Hand back.** Ask one question with your harness's question tool (`AskUserQuestion` in Claude Code, `question` in OpenCode, `request_user_input` in Codex, `ask` in omp; use a numbered chat list only if there is none): "Walked through it?" Options: `Quiz me` (inside grasp, go on to step 4; standalone, load grasp-quiz), `I have a question` (answer in 5 lines or fewer, naming the stop, then ask again), `Done for now`. In grasp's auto mode, skip the question and go straight to grasp's wrap-up.

@@ -1,11 +1,11 @@
 ---
 name: grasp-why
-description: Answer "why is this code like this?" for a file, line, function or past decision, using the private grasp journals in ~/.grasp, git blame/log, optional local session notes and past agent sessions. Clearly separates what was recorded at the time from what is inferred. Use for "why is X like this", "why did we choose Y", "a colleague asked why…", "what was the reasoning behind…", or "/grasp-why src/file.ts:42".
+description: Why is this code like this? Answers for a file, line, function or past decision from the private grasp journals in ~/.grasp, git blame and log, and past agent sessions, keeping what was recorded at the time apart from what is inferred. Use for "why is X like this", "why did we choose Y", "a colleague asked why", "what was the reasoning behind", or "/grasp-why src/file.ts:42".
 argument-hint: "<file:line | symbol | question>"
 license: MIT
 metadata:
   suite: grasp
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # grasp-why
@@ -40,7 +40,7 @@ Stop as soon as you have a recorded answer.
 
 Keep it to 10 lines or fewer.
 
-- **Recorded:** the reason as written at the time, with its source: the journal path and `D#`, or the commit and date. Say whose reason it is. `Why (user)` is the user's own. `Why (agent)` is the agent's, either accepted by the user with `rec` (`approved by user`) or never shown to them. If the decision is marked `unconfirmed`, say that nobody reviewed it.
+- **Recorded:** the reason as written at the time, with its source: the journal path and `D#`, or the commit and date. Say whose reason it is. `Why (user)` is the user's own, typed or picked from a list (`picked "…"`). `Why (agent)` is the agent's, either accepted by the user without a reason of their own (`approved by user`) or never shown to them. If the decision is marked `unconfirmed`, say that nobody reviewed it.
 - **Inferred:** use this only if nothing was recorded, and label it, e.g. "inferred from the code and tests: …".
 - **Unknown:** say that nothing was recorded. Point to the blame author as the person to ask, or to where else to look.
 - **Last line:** one plain sentence the user could say to a colleague.
