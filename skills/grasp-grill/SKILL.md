@@ -5,7 +5,7 @@ argument-hint: "[task or plan]"
 license: MIT
 metadata:
   suite: grasp
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # grasp-grill
@@ -87,7 +87,7 @@ Ask one question, "Build this plan?". The dialog can hide the chat, so the plan 
 - `Confirm (Recommended)`: its preview is the plan, 25 lines or fewer:
   1. **Decisions:** one line each, `D# · decision · choice`.
   2. **Build steps:** 7 or fewer, in order.
-  3. **Your parts:** 2–4 pieces where the user's choices shape behavior (business logic, error handling, a data structure, a tricky condition), each 5–25 lines, as `H# · file · function`. Leave this out in grasp's fast and auto modes.
+  3. **Your parts:** 2–4 pieces where the user's choices shape behavior (business logic, error handling, a data structure, a tricky condition), each 5–25 lines, as `H# · file · function`. Leave this out in grasp's fast, auto and pm modes.
 - `Change something`: ask which decision or step, apply it, then confirm again.
 
 If the tool has no previews, post the plan in chat right before the question. **Write no code until the user confirms.**

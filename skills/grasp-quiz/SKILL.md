@@ -5,7 +5,7 @@ argument-hint: "[page] [last commit | <sha> | plan]"
 license: MIT
 metadata:
   suite: grasp
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # grasp-quiz
@@ -42,6 +42,7 @@ Write 5 by default: 3 for a small change, up to 7 for a large one.
 - **Multiple choice**, 4 options: the right answer and 3 wrong ones a developer could really believe, 20 words or fewer each. Vary where the right one sits. No option is marked recommended.
 - The question stands alone: name the function and the input in the question itself ("`shouldRetry` gets a 404 on attempt 1. What happens?").
 - At least one question must target code the user did **not** write. That's where the blind spots are.
+- After a PM build (the journal has a *Board* section), ask one question on a seam between two parts and one on a choice a sub-agent made.
 - No trivia: nothing about names or line numbers, and nothing answerable by copying a line.
 - Every answer must be checkable against the code.
 

@@ -5,7 +5,7 @@ argument-hint: "<file:line | symbol | question>"
 license: MIT
 metadata:
   suite: grasp
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # grasp-why

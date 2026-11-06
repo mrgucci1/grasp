@@ -5,7 +5,7 @@ argument-hint: "[base branch | commit range]"
 license: MIT
 metadata:
   suite: grasp
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # grasp-explain
@@ -28,6 +28,7 @@ Read each changed file around its hunks, then follow the data through the change
 - 2 to 7 stops. If nothing runs (docs, config), use only `step` stops and set `"flow": false`.
 - Every other changed file goes in `offPath`: models, types, config, wiring, tests.
 - **Decisions:** the ones a stop references, plus every locked (🔒) one.
+- **After a PM build** (the journal has a *Board* section): put a stop where the path crosses each seam, and label its `in` or `out` with the seam's contract. The board's `path` lines say where to look.
 
 ## 3. Write tour.json
 
