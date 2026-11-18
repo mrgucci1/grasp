@@ -5,7 +5,7 @@ argument-hint: "[page] [last commit | <sha> | plan]"
 license: MIT
 metadata:
   suite: grasp
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # grasp-quiz

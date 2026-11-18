@@ -1,12 +1,12 @@
 ---
 name: grasp
-description: Learn while you build · grill, build, explain, quiz on one task. Usage is /grasp TASK [full|fast|auto|pm], or /grasp alone for the menu. Full has the user write the key parts with a guide. Fast has the agent write the code while the user still decides, reads the walkthrough and takes the quiz. Auto asks every design question up front, then the agent finishes alone with no quiz. PM is for big tasks: sub-agents build the parts in parallel, and the user reviews every choice they made. Questions arrive as dialogs with the recommended option first. Keeps a private decision journal outside the repo and never touches commit messages. Use when the user says "grasp", "/grasp", "grasp auto", "grasp pm", "grasp this task", "grill me then guide me", "teach me while we build this", or wants to understand a change deeply while making it. Not for quick fixes where the user only wants code.
+description: Learn while you build · grill, build, explain, quiz on one task. Usage is /grasp TASK [full|fast|auto|pm], or /grasp alone for the menu. Full has the user write the key parts with a guide. Fast has the agent write the code while the user still decides, listens to the narrated walkthrough and takes the quiz. Auto asks every design question up front, then the agent finishes alone with no quiz. PM is for big tasks: sub-agents build the parts in parallel, and the user reviews every choice they made. Questions arrive as dialogs with the recommended option first. Keeps a private decision journal outside the repo and never touches commit messages. Use when the user says "grasp", "/grasp", "grasp auto", "grasp pm", "grasp this task", "grill me then guide me", "teach me while we build this", or wants to understand a change deeply while making it. Not for quick fixes where the user only wants code.
 argument-hint: "<task> [full|fast|auto|pm]"
 license: MIT
-compatibility: Any agent with Agent Skills support (Claude Code, OpenCode, Codex). Needs git and a shell, and Node 18+ for the walkthrough and the quiz page.
+compatibility: Any agent with Agent Skills support (Claude Code, OpenCode, Codex). Needs git and a shell, and Node 18+ for the walkthrough, its voice and the quiz page.
 metadata:
   suite: grasp
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # grasp
@@ -27,23 +27,23 @@ Run one task through four steps, so the user ends up owning the change instead o
 2. **Task.** Otherwise the task is `$ARGUMENTS` (or what the user typed), minus a trailing mode word (`full`, `fast`, `auto` or `pm`). A word that belongs to the task's own sentence, as in "run it at 5 pm", is not a mode word.
 3. **Journal.** Find or create the private journal (see *Storage*). If one exists for this branch with unfinished steps and the user did not just pick Resume, ask: `Resume at <step> (Recommended)` or `Start over`. To resume, keep the journal's mode and go to its first unfinished step.
 4. **Mode and branch.** One dialog holding only the questions still open. **Branch**, only on the default branch (main, master or develop): `Create <slug> (Recommended)` or `Stay on <branch>`. Never create a branch unasked. **Mode**, unless the arguments named one, with no option recommended:
-   - `Full`: "You write the key parts, with a guide. 45–90 min."
-   - `Fast`: "I write the code. You still decide, read the walkthrough and take the quiz. 15–20 min."
+   - `Full`: "You write the key parts, with a guide. 55–105 min."
+   - `Fast`: "I write the code. You still decide, listen to the walkthrough and take the quiz. 25–35 min."
    - `Auto`: "You answer every design question now, then I finish alone. No quiz. 10–20 min, all up front."
-   - `PM`: "A big task. Sub-agents build it in parallel and I manage them. You decide, then review every choice they made. 25–40 min, plus the build."
+   - `PM`: "A big task. Sub-agents build it in parallel and I manage them. You decide, then review every choice they made. 35–50 min, plus the build."
 
 Usage card:
 ```
 grasp · learn while you build
 /grasp <task> [full|fast|auto|pm]   grill → build → explain → quiz
-    full   you write the key parts               45–90 min
-    fast   I write the code, you decide          15–20 min
+    full   you write the key parts               55–105 min
+    fast   I write the code, you decide          25–35 min
     auto   answer everything up front, no quiz   10–20 min
-    pm     big task, built by sub-agents         25–40 min
+    pm     big task, built by sub-agents         35–50 min
 /grasp-grill [task]                 design questions only
 /grasp-guide                        write the key parts of an agreed plan
 /grasp-pm [task | review]           build with sub-agents · review their choices
-/grasp-explain [base]               step through the current change
+/grasp-explain [base]               a narrated walkthrough of the current change
 /grasp-quiz [page] [last commit | <sha> | plan]   check yourself, 80% passes
 /grasp-teach <concept> | review     learn a concept · review due cards
 /grasp-why <file:line | question>   why is this code like this?
@@ -88,7 +88,7 @@ In Auto mode and a hands-off PM build, wrap up once the walkthrough is written:
    - every `deviation` from the plan and every decision marked `unconfirmed`, since the user hasn't reviewed them. Past 5, give the 5 that matter most and the count. After a PM build, add that `/grasp-pm review` goes through them as dialogs.
    - the walkthrough and journal paths
    - that `grasp-quiz` works on this branch whenever they have 5 minutes, and `grasp-why <file:line>` answers questions later
-3. End with: "Before you merge, skim the walkthrough (≈5 min). Commit however your team formats commits; grasp never writes to them."
+3. End with: "Before you merge, play the walkthrough (≈10–15 min, or skim it in 5). Commit however your team formats commits; grasp never writes to them."
 
 ## Rules
 

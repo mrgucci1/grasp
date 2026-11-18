@@ -13,7 +13,9 @@
     --you:#8a4b00; --you-bg:#fff0d6;
     --low:#1a7f37; --med:#9a6700; --high:#b42318;
     --gut:#8c959f; --lit:#2f6fde0d; --sweep:#2f6fde30; --hl:#2f6fde24; --dim:.42;
+    --spot:#2f6fde1f; --mark:#ffd84d80;
     --kw:#cf222e; --str:#0a3069; --num:#0550ae; --com:#6e7781; --fn:#8250df; --ty:#953800;
+    --bar:58px;
     color-scheme:light;
   }
   @media (prefers-color-scheme:dark){
@@ -24,16 +26,42 @@
       --you:#ffb454; --you-bg:#33240d;
       --low:#56d364; --med:#e3b341; --high:#ff7b72;
       --gut:#6e7681; --lit:#7aa7ff0f; --sweep:#7aa7ff30; --hl:#7aa7ff26; --dim:.4;
+      --spot:#7aa7ff22; --mark:#e3b34155;
       --kw:#ff7b72; --str:#a5d6ff; --num:#79c0ff; --com:#8b949e; --fn:#d2a8ff; --ty:#ffa657;
       color-scheme:dark;
     }
   }
   *{box-sizing:border-box}
+  html{scroll-padding-top:calc(var(--bar) + 12px)}
   body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   main{max-width:1360px;margin:0 auto;padding:20px 24px 32px}
-  code,kbd,.mono,.code,.tabs,.chip,.arrow,.pill,.badge,.eyebrow,h3{font-family:ui-monospace,"Cascadia Code","SF Mono",Consolas,monospace;font-variant-ligatures:none}
+  code,kbd,.mono,.code,.tabs,.chip,.arrow,.pill,.badge,.eyebrow,h3,.stack,.time,.w.c{font-family:ui-monospace,"Cascadia Code","SF Mono",Consolas,monospace;font-variant-ligatures:none}
   button{font:inherit;color:inherit;cursor:pointer}
   .eyebrow,h3{font-size:11px;line-height:1.2;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+  .glow{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;animation:glow 1.4s ease-in-out infinite alternate}
+  @keyframes glow{to{outline-color:color-mix(in srgb,var(--accent) 35%,transparent)}}
+
+  /* player: the voice-over controls, pinned to the top */
+  .player{position:sticky;top:0;z-index:30;min-height:var(--bar);display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:8px max(16px,calc((100vw - 1360px)/2 + 24px));background:color-mix(in srgb,var(--card) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+  .player[hidden]{display:none}
+  .play{display:inline-flex;align-items:center;gap:8px;min-width:132px;padding:8px 16px 8px 12px;border:0;border-radius:999px;background:var(--accent);color:var(--card);font-weight:650;font-size:13.5px}
+  .play:hover{filter:brightness(1.08)}
+  .play svg,.ib svg{width:16px;height:16px;fill:currentColor;flex:none}
+  .ib{display:grid;place-items:center;width:34px;height:34px;padding:0;border:1px solid var(--rule);border-radius:9px;background:var(--bg)}
+  .ib:hover{border-color:var(--accent);color:var(--accent)}
+  .track{flex:1 1 280px;min-width:200px;display:grid;gap:5px}
+  .where{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden}
+  .where b{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis}
+  .where .mv{font:700 10px/1 ui-monospace,Consolas,monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--accent)}
+  .bar{position:relative;height:8px;border-radius:4px;background:var(--rule);cursor:pointer}
+  .bar:hover{height:10px;margin:-1px 0}
+  .bar .fill{position:absolute;inset:0 auto 0 0;border-radius:4px;background:var(--accent);pointer-events:none}
+  .bar i{position:absolute;top:-2px;bottom:-2px;width:2px;margin-left:-1px;background:var(--card);pointer-events:none}
+  .time{min-width:96px;text-align:right;font-size:12px;color:var(--muted)}
+  .sel{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .sel select{max-width:190px;font:inherit;font-size:12.5px;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:7px;padding:4px 6px}
+  .chk{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none}
+  .chk input{accent-color:var(--accent);margin:0}
 
   /* header */
   header{display:grid;gap:4px;margin-bottom:14px}
@@ -53,6 +81,7 @@
   .token{position:absolute;left:0;top:0;border-radius:7px;background:var(--hl);box-shadow:inset 0 0 0 1.5px var(--accent);pointer-events:none}
   .token.ready{transition:transform .38s cubic-bezier(.3,.7,.2,1),width .38s,height .38s}
   .chip{position:relative;display:inline-flex;align-items:center;gap:7px;padding:5px 10px 5px 6px;border:0;background:none;border-radius:7px;font-size:12.5px;color:var(--muted)}
+  .chip.ends{padding:5px 10px;font-weight:600;letter-spacing:.02em}
   .chip:hover,.chip[aria-current]{color:var(--ink)}
   .chip .n{display:grid;place-items:center;min-width:20px;height:20px;border-radius:5px;font-size:11px;font-weight:700;color:var(--st);background:color-mix(in srgb,var(--st) 16%,transparent)}
   .new{--st:var(--add)} .changed{--st:var(--med)} .context{--st:var(--muted)}
@@ -64,11 +93,21 @@
   .legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;background:var(--st)}
 
   /* stage */
-  .stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
-  #editor{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--rule);border-radius:10px}
+  .stage{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start}
+  #editor{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden;scroll-margin-top:calc(var(--bar) + 12px)}
+  #pane{position:relative;overflow:hidden}
   .ed{animation:in .32s ease-out}
+  .ed.into{animation:into .45s cubic-bezier(.3,.7,.2,1)}
+  .ed.outof{animation:outof .45s cubic-bezier(.3,.7,.2,1)}
   .ed.out{position:absolute;inset:0 0 auto;animation:out .32s ease-in forwards;pointer-events:none}
   @keyframes in{from{opacity:0}} @keyframes out{to{opacity:0}}
+  @keyframes into{from{opacity:0;transform:translate(36px,8px) scale(.975)}}
+  @keyframes outof{from{opacity:0;transform:translate(-36px,0) scale(.975)}}
+  .stack{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:6px 12px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--rule)}
+  .stack b{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-right:2px}
+  .stack .fr{padding:1px 7px;border-radius:5px;background:var(--code-bg)}
+  .stack .fr.top{color:var(--ink);background:color-mix(in srgb,var(--accent) 15%,transparent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .stack .mv{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
   .tabs{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding-right:10px;background:var(--code-bg);border-bottom:1px solid var(--rule);font-size:12.5px}
   .tab{display:flex;gap:10px;align-items:baseline;padding:7px 14px 8px;margin-bottom:-1px;background:var(--card);border-top:2px solid var(--accent);border-right:1px solid var(--rule);font-weight:600}
   .tab .dir,.tab .range{color:var(--muted);font-weight:400}
@@ -79,11 +118,11 @@
   .badge.lock{--st:var(--accent)} .badge.unconfirmed{--st:var(--del)}
 
   /* code */
-  .code{position:relative;overflow:auto;max-height:max(340px,calc(100vh - 300px));padding:6px 0 10px;font-size:13px;line-height:20px;tab-size:4}
+  .code{position:relative;overflow:auto;max-height:max(320px,calc(100vh - 380px));padding:6px 0 10px;font-size:13px;line-height:20px;tab-size:4}
   .lines{width:max-content;min-width:100%}
   .row{display:flex;position:relative;white-space:pre}
   .gut{position:sticky;left:0;z-index:2;flex:none;width:54px;padding-right:16px;text-align:right;color:var(--gut);background:var(--card);user-select:none}
-  .src{flex:1;padding-right:28px}
+  .src{flex:1;padding-right:28px;transition:opacity .25s}
   .row.dim .src{opacity:var(--dim)}
   .row.focus{background:linear-gradient(90deg,transparent,var(--sweep),transparent) -60% 0/35% 100% no-repeat var(--lit);animation:sweep .7s .12s ease-out both}
   .row.focus .gut{color:var(--ink)}
@@ -94,6 +133,14 @@
   .lines .row.hl{background-color:var(--hl)}
   .lines .row.hl .src{opacity:1}
   .com{color:var(--com);font-style:italic} .str{color:var(--str)} .num{color:var(--num)} .kw{color:var(--kw)} .fn{color:var(--fn)} .ty{color:var(--ty)}
+  /* while the voice talks about some lines: those lines light up, the rest fade, named identifiers get a box */
+  .lines.speaking .row:not(.spot) .src,.lines.speaking .mk:not(.spot){opacity:.3}
+  .lines.speaking .row.spot{background:var(--spot);animation:none}
+  .lines.speaking .row.spot .src{opacity:1}
+  .lines.speaking .row.spot .gut{color:var(--ink);background:linear-gradient(var(--spot),var(--spot)),var(--card);box-shadow:inset 3px 0 var(--accent)}
+  .mk{transition:opacity .25s}
+  mark.tok{color:inherit;background:var(--mark);border-radius:3px;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--you) 60%,transparent);animation:tok .5s ease-out}
+  @keyframes tok{from{box-shadow:0 0 0 6px color-mix(in srgb,var(--you) 0%,transparent);background:transparent}}
 
   /* decorations: in/out marker rules, note callouts, removed lines */
   .mk{--mk:var(--gut);display:flex;height:24px}
@@ -115,21 +162,66 @@
   .rmbtn:hover{background:var(--del-bg)}
   .rmbtn::after{content:" ▸"} .rmbtn[aria-expanded="true"]::after{content:" ▾"}
   .row.del,.row.del .gut{background:var(--del-bg);color:var(--del)}
+  .lines.speaking .row.del.spot .src{opacity:1}
 
-  /* narration */
-  .narr{position:sticky;top:12px;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 16px 16px}
+  /* the flow map: shown during the overview and the recap */
+  .map{padding:14px 16px 18px}
+  .map .eyebrow{margin-bottom:10px}
+  .mrow{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:2px 12px;width:calc(100% - var(--d) * 32px);margin-left:calc(var(--d) * 32px);padding:9px 12px;border:1px solid var(--rule);border-radius:9px;background:var(--card);text-align:left;transition:box-shadow .25s,background .25s}
+  .mrow:hover{border-color:var(--accent)}
+  .mrow .n{grid-row:1/3;display:grid;place-items:center;min-width:24px;height:24px;border-radius:6px;font:700 12px/1 ui-monospace,Consolas,monospace;color:var(--st);background:color-mix(in srgb,var(--st) 16%,transparent)}
+  .mrow code{font-weight:600;font-size:13px;overflow-wrap:anywhere}
+  .mrow .mt{color:var(--muted);font-size:13px}
+  .mrow .mf{grid-column:2;font:11.5px ui-monospace,Consolas,monospace;color:var(--muted);overflow-wrap:anywhere}
+  .mrow .badge{grid-column:3;grid-row:1/3}
+  .mrow.glow,.mrow[aria-current]{outline:0;animation:none;box-shadow:0 0 0 2px var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+  .medge{display:flex;align-items:center;gap:8px;margin-left:calc(var(--d) * 32px + 23px);padding:5px 0 5px 14px;border-left:2px dashed var(--rule);font:11.5px ui-monospace,Consolas,monospace;color:var(--muted)}
+  .medge .ek{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .medge .ek.into,.medge .ek.outof{color:var(--accent)}
+
+  /* subtitle bar under the code: the sentence being spoken, word by word */
+  .caption{min-height:84px;padding:10px 16px 13px;border-top:1px solid var(--rule);background:color-mix(in srgb,var(--accent) 4%,var(--card))}
+  .captag{display:flex;flex-wrap:wrap;gap:4px 10px;margin-bottom:5px;font:600 10.5px/1.4 ui-monospace,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .captag .new{color:var(--add)} .captag .changed{color:var(--med)} .captag .old{color:var(--del)}
+  .cap{margin:0;font-size:16.5px;line-height:1.55;text-wrap:pretty}
+  .cap .w{color:color-mix(in srgb,var(--ink) 45%,transparent);transition:color .12s}
+  .cap.idle .w,.cap .w.said,.cap .w.now{color:var(--ink)}
+  .cap .w.now{text-decoration:underline 2px var(--accent);text-underline-offset:5px}
+  .w.c{font-size:.86em;padding:1px 4px;border-radius:4px;background:var(--code-bg)}
+  .w.t{text-decoration:underline dotted 1.5px var(--you);text-underline-offset:4px;cursor:help}
+  .cap .w.t.now{text-decoration:underline 2px var(--you)}
+  .hint{margin:0;font-size:14px;color:var(--muted)}
+  .hint kbd{padding:1px 5px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink)}
+
+  /* narration side panel */
+  .narr{position:sticky;top:calc(var(--bar) + 12px);max-height:calc(100vh - var(--bar) - 24px);overflow:auto;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 16px 16px;overscroll-behavior:contain}
   .ctl{display:flex;align-items:center;gap:8px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--rule)}
   .nb{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--rule);border-radius:7px;background:var(--bg);font-size:13px}
   .nb:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
   .nb:disabled{opacity:.4;cursor:default}
   kbd{font-size:11px;color:var(--muted)}
-  .dots{flex:1;display:flex;justify-content:center;gap:5px}
+  .dots{flex:1;display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
   .dot{width:8px;height:8px;padding:0;border:0;border-radius:4px;background:var(--rule);transition:width .3s}
+  .dot.ends{background:color-mix(in srgb,var(--muted) 45%,transparent)}
   .dot.on{width:20px;background:var(--accent)}
   .role.entry,.role.exit{color:var(--accent)}
   .narr h2{font-size:18px;line-height:1.3;margin:6px 0 2px}
   .at{font-size:12.5px;color:var(--muted)}
   .say{font-size:15px;line-height:1.55;margin:10px 0 0}
+  .defs{display:grid;gap:6px;margin-top:12px}
+  .defs:empty{display:none}
+  .def{padding:7px 10px 8px;border:1px solid color-mix(in srgb,var(--you) 35%,var(--rule));border-radius:8px;background:var(--you-bg);font-size:13.5px;line-height:1.45;animation:pop .35s ease-out}
+  .def b{display:block;margin-bottom:1px;font:700 10.5px/1.4 ui-monospace,Consolas,monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--you)}
+  @keyframes pop{from{opacity:0;transform:translateY(-6px) scale(.98)}}
+  .txh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:16px}
+  .txh span{font-size:11.5px;color:var(--muted)}
+  .tx{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:1px;counter-reset:tx}
+  .tx li{position:relative;margin:0 -8px;padding:6px 8px 6px 30px;border-radius:7px;font-size:13.5px;line-height:1.5;cursor:pointer;transition:background .2s,color .2s}
+  .tx li::before{counter-increment:tx;content:counter(tx);position:absolute;left:8px;top:8px;font:11px/1.4 ui-monospace,Consolas,monospace;color:var(--muted)}
+  .tx li:hover{background:var(--hl)}
+  .tx li.past{color:var(--muted)}
+  .tx li.now{background:color-mix(in srgb,var(--accent) 12%,transparent);box-shadow:inset 3px 0 var(--accent)}
+  .tx .ln{float:right;margin-left:8px;font:11px/1.9 ui-monospace,Consolas,monospace;color:var(--muted)}
   .notes{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:2px}
   .notes li{display:flex;align-items:baseline;gap:8px;padding:4px 6px;margin:0 -6px;border-radius:6px;font-size:13.5px;cursor:default}
   .notes li:hover{background:var(--hl)}
@@ -147,7 +239,7 @@
 
   /* cards */
   .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
-  .card{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 16px}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 16px;scroll-margin-top:calc(var(--bar) + 12px)}
   .card.wide{grid-column:1/-1}
   .card h3 span{font-weight:400;letter-spacing:0;text-transform:none}
   .card ul{list-style:none;margin:8px 0 0;padding:0}
@@ -165,78 +257,164 @@
   .off code{font-size:12.5px;overflow-wrap:anywhere}
   .off .what{color:var(--muted)}
   .stat{font:12px ui-monospace,Consolas,monospace} .stat .a{color:var(--add)} .stat .d{color:var(--del)}
+  .terms dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:0 16px;margin:8px 0 0;font-size:13.5px}
+  .terms dt,.terms dd{margin:0;padding:6px 0;border-top:1px solid var(--rule)}
+  .terms dt:first-of-type,.terms dd:first-of-type{border-top:0}
+  .terms dt{font-weight:650;color:var(--you)}
   footer{margin-top:18px;text-align:center;font-size:12px;color:var(--muted)}
+  .fab{display:none}
 
   @media (max-width:900px){
+    :root{--bar:0px}
     main{padding:16px}
+    /* on a phone the full player scrolls away; a floating button keeps play and pause in reach */
+    .player{position:static;padding:8px 16px}
+    .fab{position:fixed;right:16px;bottom:16px;z-index:40;display:grid;place-items:center;width:52px;height:52px;padding:0;border:0;border-radius:50%;background:var(--accent);color:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.28)}
+    .fab svg{width:20px;height:20px;fill:currentColor}
+    .fab[hidden]{display:none}
     .stage,.cards{grid-template-columns:minmax(0,1fr)}
-    .narr{position:static}
-    .code{max-height:none}
+    .narr{position:static;max-height:none}
+    .code{max-height:60vh}
     .legend{display:none}
     .drow{grid-template-columns:30px minmax(0,1fr);gap:2px 12px}
     .drow>:nth-child(n+3){grid-column:2}
+    .time{min-width:0}
   }
   @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<div class="player" id="player" hidden>
+  <button class="play" id="play" title="Play or pause (Space)"><svg viewBox="0 0 16 16" id="playicon"><path d="M4 2.5v11l9-5.5z"/></svg><span id="playlbl">Play walkthrough</span></button>
+  <button class="ib" id="back" title="Previous sentence ( [ )" aria-label="Previous sentence"><svg viewBox="0 0 16 16"><path d="M3 3h2v10H3zM14 3v10L6 8z"/></svg></button>
+  <button class="ib" id="fwd" title="Next sentence ( ] )" aria-label="Next sentence"><svg viewBox="0 0 16 16"><path d="M11 3h2v10h-2zM2 3v10l8-5z"/></svg></button>
+  <div class="track"><div class="where" id="where"></div><div class="bar" id="bar" role="slider" aria-label="Walkthrough position" tabindex="-1"><div class="fill" id="fill"></div></div></div>
+  <span class="time" id="time"></span>
+  <label class="sel">Speed <select id="rate"><option value="0.85">0.85×</option><option value="1">1×</option><option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option></select></label>
+  <label class="sel">Voice <select id="voice"></select></label>
+  <label class="chk" title="Off: pause at the end of each stop"><input type="checkbox" id="auto" checked>Auto-advance</label>
+</div>
 <main>
   <header>
     <div class="eyebrow">grasp · explain</div>
     <div class="titlerow"><h1 id="title"></h1><span id="risk" class="risk"></span></div>
     <p class="meta" id="meta"></p>
-    <dl class="ww"><dt>WHAT</dt><dd id="what"></dd><dt>WHY</dt><dd id="why"></dd></dl>
+    <dl class="ww"><dt id="what-dt">WHAT</dt><dd id="what"></dd><dt id="why-dt">WHY</dt><dd id="why"></dd></dl>
   </header>
   <nav class="strip" id="strip" aria-label="Path from entry to exit"></nav>
   <div class="stage">
-    <section id="editor" aria-label="Code"></section>
-    <aside class="narr">
+    <section id="editor" aria-label="Code"><div id="pane"></div><div class="caption" id="caption" aria-live="polite"></div></section>
+    <aside class="narr" id="narr">
       <div class="ctl">
         <button class="nb" id="prev" title="Previous stop (←)"><kbd>←</kbd>Prev</button>
         <span class="dots" id="dots"></span>
         <button class="nb" id="next" title="Next stop (→)">Next<kbd>→</kbd></button>
       </div>
-      <div id="story" aria-live="polite"></div>
+      <div id="story"></div>
     </aside>
   </div>
   <div class="cards">
     <section class="card wide" id="decisions"></section>
     <section class="card risks" id="risks"></section>
     <section class="card off" id="off"></section>
+    <section class="card wide terms" id="terms"></section>
   </div>
   <footer id="foot"></footer>
 </main>
+<button class="fab" id="fab" hidden aria-label="Play or pause the walkthrough"><svg viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z"/></svg></button>
 <script id="tour" type="application/json">__TOUR__</script>
 <script>
-(function () {
-  var T = JSON.parse(document.getElementById('tour').textContent);
-  var S = T.stops, DEC = {}, cur = -1;
-  (T.decisions || []).forEach(function (d) { DEC[d.id] = d; });
-  var $ = function (s) { return document.querySelector(s); };
-  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-  var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var STATUS = { new: 'NEW', changed: 'CHANGED', context: 'CONTEXT' };
+(() => {
+  const T = JSON.parse(document.getElementById('tour').textContent);
+  const S = T.stops, DEC = {};
+  (T.decisions || []).forEach(d => { DEC[d.id] = d; });
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const STATUS = { new: 'NEW', changed: 'CHANGED', context: 'CONTEXT' };
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('grasp.explain.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem('grasp.explain.' + k, JSON.stringify(v)); } catch { /* private window */ } },
+  };
+  const fmt = t => { t = Math.max(0, Math.round(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+  const words = s => (String(s).match(/\S+/g) || []).length;
+  const span = r => r ? 'L' + r[0] + (r[1] !== r[0] ? '–' + r[1] : '') : '';
+  const GAP = 0.3, SCENE_GAP = 0.9;
 
-  // Tiny editor-style tokenizer: comments, strings, numbers, keywords, calls, types.
-  var KW = {};
+  // ---- scenes: overview, one per stop, recap -------------------------------------------------
+  const scenes = [];
+  if (T.intro && T.intro.length) scenes.push({ kind: 'intro', segs: T.intro, name: 'Overview' });
+  S.forEach((s, i) => { s.depth = s.depth || 0; scenes.push({ kind: 'stop', i, s, segs: s.walk || [], name: s.at }); });
+  if (T.outro && T.outro.length) scenes.push({ kind: 'outro', segs: T.outro, name: 'Recap' });
+  const sceneOfStop = i => scenes.findIndex(x => x.i === i);
+  const narrated = scenes.some(x => x.segs.length);
+  const stepping = S.some(s => s.depth > 0);
+  const est = g => g.secs || Math.max(1.5, words(g.spoken || g.say) / 2.6);
+  let TOTAL = 0;
+  const flat = [];
+  scenes.forEach((sc, si) => {
+    sc.start = TOTAL;
+    sc.segs.forEach((g, k) => { g.t0 = TOTAL; flat.push({ si, k, g }); TOTAL += est(g) + GAP; });
+    sc.end = TOTAL; TOTAL += SCENE_GAP;
+  });
+
+  // ---- words to know, and narration text split into words for the subtitle -------------------
+  const TERMS = (T.terms || []).map((x, i) => Object.assign({ i }, x));
+  const termRe = TERMS.length ? new RegExp('(?<![\\p{L}\\p{N}_])(' + TERMS.map(x => x.term).sort((a, b) => b.length - a.length).map(escRe).join('|') + ')(?![\\p{L}\\p{N}_])', 'giu') : null;
+  const termOf = m => TERMS.find(x => x.term.toLowerCase() === m.toLowerCase());
+  function tokenize(text) {
+    let disp = '';
+    const code = [];
+    String(text).split(/(`[^`]+`)/).forEach(p => {
+      const c = p.length > 2 && p[0] === '`' && p[p.length - 1] === '`', s = c ? p.slice(1, -1) : p;
+      for (let j = 0; j < s.length; j++) code.push(c);
+      disp += s;
+    });
+    const hits = [];
+    if (termRe) { termRe.lastIndex = 0; let m; while ((m = termRe.exec(disp))) if (!code[m.index]) hits.push([m.index, m.index + m[0].length, termOf(m[0])]); }
+    // A word ends at a space, or where code meets plain text, so `backoff`, keeps its comma outside the code.
+    const out = [];
+    let w = 0;
+    for (let a = 0, b; a < disp.length; a = b) {
+      if (/\s/.test(disp[a])) { b = a + 1; continue; }
+      for (b = a + 1; b < disp.length && !/\s/.test(disp[b]) && code[b] === code[a]; b++);
+      const hit = hits.find(h => a < h[1] && b > h[0]), c = code[a];
+      out.push({ a, b, text: disp.slice(a, b), code: c, term: hit && hit[2], w0: w, w1: (w += (b - a) * (c ? 1.6 : 1) + 1.5) });
+    }
+    out.forEach(x => { x.f0 = x.w0 / w; x.f1 = x.w1 / w; });
+    return { disp, words: out };
+  }
+  function rich(tok) {
+    let html = '', last = 0;
+    tok.words.forEach((x, j) => {
+      html += esc(tok.disp.slice(last, x.a)) + '<span class="w' + (x.code ? ' c' : '') + (x.term ? ' t' : '') + '" data-w="' + j + '"' +
+        (x.term ? ' title="' + esc(x.term.term + ': ' + x.term.def) + '"' : '') + '>' + esc(x.text) + '</span>';
+      last = x.b;
+    });
+    return html + esc(tok.disp.slice(last));
+  }
+  scenes.forEach(sc => sc.segs.forEach(g => { g.tok = tokenize(g.say); }));
+
+  // ---- tiny editor-style tokenizer: comments, strings, numbers, keywords, calls, types --------
+  const KW = {};
   ('abstract and as assert async await break case catch class const continue def default defer del delete do elif else enum except export extends ' +
    'false False final finally fn for from func function go if impl import in instanceof interface is lambda let match mod module mut new nil None ' +
    'not null or package pass private protected pub public raise readonly return self Self static struct super switch this throw throws trait true ' +
-   'True try type typeof undefined unless use val var void when where while with yield').split(' ').forEach(function (k) { KW[k] = 1; });
-  var TOKEN = function (hash) {
-    return new RegExp((hash ? '(#.*)' : '(\\/\\/.*|\\/\\*.*?(?:\\*\\/|$))') +
-      '|("(?:\\\\.|[^"\\\\])*"?|\'(?:\\\\.|[^\'\\\\])*\'?|`(?:\\\\.|[^`\\\\])*`?)|(\\b(?:0x[\\da-fA-F]+|\\d[\\d_]*(?:\\.\\d+)?)\\b)|([A-Za-z_$][\\w$]*)', 'g');
-  };
+   'True try type typeof undefined unless use val var void when where while with yield').split(' ').forEach(k => { KW[k] = 1; });
+  const TOKEN = hash => new RegExp((hash ? '(#.*)' : '(\\/\\/.*|\\/\\*.*?(?:\\*\\/|$))') +
+    '|("(?:\\\\.|[^"\\\\])*"?|\'(?:\\\\.|[^\'\\\\])*\'?|`(?:\\\\.|[^`\\\\])*`?)|(\\b(?:0x[\\da-fA-F]+|\\d[\\d_]*(?:\\.\\d+)?)\\b)|([A-Za-z_$][\\w$]*)', 'g');
   function paint(line, st) {
-    var out = '', last = 0, m, re = st.re;
+    let out = '', last = 0, m;
+    const re = st.re;
     if (st.block) {
-      var e = line.indexOf('*/');
+      const e = line.indexOf('*/');
       if (e < 0) return '<span class="com">' + esc(line) + '</span>';
       out = '<span class="com">' + esc(line.slice(0, e + 2)) + '</span>'; last = e + 2; st.block = false;
     }
     re.lastIndex = last;
     while ((m = re.exec(line))) {
-      var t = m[0], cls = m[1] ? 'com' : m[2] ? 'str' : m[3] ? 'num' : KW[t] ? 'kw'
+      const t = m[0], cls = m[1] ? 'com' : m[2] ? 'str' : m[3] ? 'num' : KW[t] ? 'kw'
         : /^\s*\(/.test(line.slice(re.lastIndex)) ? 'fn' : /^[A-Z][a-z]/.test(t) ? 'ty' : '';
       if (m[1] && t.slice(0, 2) === '/*' && (t.length < 4 || t.slice(-2) !== '*/')) st.block = true;
       out += esc(line.slice(last, m.index)) + (cls ? '<span class="' + cls + '">' + esc(t) + '</span>' : esc(t));
@@ -245,89 +423,89 @@
     return out + esc(line.slice(last));
   }
 
-  function badges(d) {
-    return (d.locked ? '<span class="badge lock">locked</span>' : '') +
-      (d.by === 'agent' || d.by === 'agent-approved' ? '<span class="badge">agent</span>' : '') +
-      (d.unconfirmed ? '<span class="badge unconfirmed">unconfirmed</span>' : '');
+  // ---- renderers ---------------------------------------------------------------------------------
+  const badges = d => (d.locked ? '<span class="badge lock">locked</span>' : '') +
+    (d.by === 'agent' || d.by === 'agent-approved' ? '<span class="badge">agent</span>' : '') +
+    (d.unconfirmed ? '<span class="badge unconfirmed">unconfirmed</span>' : '');
+  const marker = (kind, m, tag, lit) => '<div class="mk ' + kind + (tag ? ' strong' : '') + lit + '" data-line="' + m.line + '"><span class="gut"></span><span class="rule"><span class="pill"><b>' +
+    (tag || kind) + '</b>' + esc(m.label) + '</span></span></div>';
+
+  // The call stack at stop i: each earlier stop that is shallower than everything after it.
+  function stackOf(i) {
+    const out = [S[i]];
+    let d = S[i].depth;
+    for (let j = i - 1; j >= 0 && d > 0; j--) if (S[j].depth < d) { out.unshift(S[j]); d = S[j].depth; }
+    return out;
   }
-  function marker(kind, m, tag, lit) {
-    return '<div class="mk ' + kind + (tag ? ' strong' : '') + lit + '"><span class="gut"></span><span class="rule"><span class="pill"><b>' +
-      (tag || kind) + '</b>' + esc(m.label) + '</span></span></div>';
+  function moveOf(i) {
+    if (i <= 0) return '';
+    const d = S[i].depth - S[i - 1].depth;
+    return d > 0 ? 'stepped into' : d < 0 ? 'returned to' : '';
   }
 
-  function editor(s) {
-    var a = s.lines[0], b = s.lines[1], fa = s.focus[0], fb = s.focus[1], rows = '', n;
-    var added = {}, removed = {}, st = { block: false, re: TOKEN(/\.(py|rb|sh|ya?ml|toml|r|pl|ps1|exs?)$|(^|\/)(Dockerfile|Makefile)$/i.test(s.file)) };
-    (s.added || []).forEach(function (k) { added[k] = 1; });
-    (s.removed || []).forEach(function (r) { removed[r.before] = r.lines; });
-    for (n = a; n <= b + 1; n++) {
+  function editor(s, i) {
+    const a = s.lines[0], b = s.lines[1], fa = s.focus[0], fb = s.focus[1], added = {}, removed = {};
+    const st = { block: false, re: TOKEN(/\.(py|rb|sh|ya?ml|toml|r|pl|ps1|exs?)$|(^|\/)(Dockerfile|Makefile)$/i.test(s.file)) };
+    (s.added || []).forEach(k => { added[k] = 1; });
+    (s.removed || []).forEach(r => { removed[r.before] = r.lines; });
+    let rows = '';
+    for (let n = a; n <= b + 1; n++) {
       // Decoration rows between two focus lines stay lit: above line n when n > fa, below it when n < fb.
-      var gone = removed[n], pre = n > fa && n <= fb ? ' lit' : '', post = n >= fa && n < fb ? ' lit' : '';
-      if (gone) rows += '<div class="row rm' + pre + '"><span class="gut"></span><button class="rmbtn" aria-expanded="false">− ' + gone.length + ' line' + (gone.length > 1 ? 's' : '') +
-        ' removed</button></div><div hidden>' + gone.map(function (l) { return '<div class="row del"><span class="gut">−</span><span class="src">' + (esc(l) || ' ') + '</span></div>'; }).join('') + '</div>';
+      const gone = removed[n], pre = n > fa && n <= fb ? ' lit' : '', post = n >= fa && n < fb ? ' lit' : '';
+      if (gone) rows += '<div class="row rm' + pre + '" data-line="' + n + '" data-rm="' + n + '"><span class="gut"></span><button class="rmbtn" aria-expanded="false">− ' + gone.length + ' line' + (gone.length > 1 ? 's' : '') +
+        ' removed</button></div><div hidden>' + gone.map(l => '<div class="row del" data-line="' + n + '"><span class="gut">−</span><span class="src">' + (esc(l) || ' ') + '</span></div>').join('') + '</div>';
       if (n > b) break;
       if (s.in && s.in.line === n) rows += marker('in', s.in, s.role === 'entry' && 'entry', pre);
       rows += '<div class="row' + (added[n] ? ' add' : '') + (n >= fa && n <= fb ? ' focus' : ' dim') + '" data-line="' + n + '"><span class="gut">' + n +
         '</span><span class="src">' + (paint(s.code[n - a] || '', st) || ' ') + '</span></div>';
-      (s.notes || []).forEach(function (t, k) {
+      (s.notes || []).forEach((t, k) => {
         if (t.line === n) rows += '<div class="row note' + post + '" data-line="' + n + '"><span class="gut"></span><span class="callout"><span class="pin">' + (k + 1) + '</span>' + esc(t.text) + '</span></div>';
       });
       if (s.out && s.out.line === n) rows += marker('out', s.out, s.role === 'exit' && 'exit', post);
     }
-    var dir = s.file.replace(/[^\/]*$/, '');
-    return '<div class="tabs"><span class="tab"><span><span class="dir">' + esc(dir) + '</span>' + esc(s.file.slice(dir.length)) + '</span><span class="range">' + a + '–' + b + '</span></span>' +
+    const dir = s.file.replace(/[^\/]*$/, ''), stack = stackOf(i), mv = moveOf(i);
+    return (stepping ? '<div class="stack"><b>call stack</b>' + stack.map((x, k) => (k ? '<span>›</span>' : '') + '<span class="fr' + (k === stack.length - 1 ? ' top' : '') + '">' + esc(x.at) + '</span>').join('') +
+        (mv ? '<span class="mv">' + (mv === 'stepped into' ? '↘ ' : '↖ ') + mv + '</span>' : '') + '</div>' : '') +
+      '<div class="tabs"><span class="tab"><span><span class="dir">' + esc(dir) + '</span>' + esc(s.file.slice(dir.length)) + '</span><span class="range">' + a + '–' + b + '</span></span>' +
       '<span class="badge ' + s.status + '">' + STATUS[s.status] + '</span>' +
       (s.yours ? '<span class="badge you">you wrote this · ' + esc(s.yours) + '</span>' : '') +
       (s.open ? '<a class="open" href="' + esc(s.open) + '">Open in editor ↗</a>' : '') +
       '</div><div class="code"><div class="lines">' + rows + '</div></div>';
   }
 
-  function story(s, i) {
-    var d = DEC[s.decision];
-    return '<div class="eyebrow">Stop ' + (i + 1) + ' of ' + S.length + ' · <span class="role ' + s.role + '">' + s.role + '</span></div>' +
-      '<h2>' + esc(s.title) + '</h2><code class="at">' + esc(s.at) + '</code><p class="say">' + esc(s.say) + '</p>' +
-      (s.notes && s.notes.length ? '<ol class="notes">' + s.notes.map(function (t, k) {
-        return '<li data-line="' + t.line + '"><span class="pin">' + (k + 1) + '</span><span>' + esc(t.text) + '</span><span class="ln">L' + t.line + '</span></li>';
-      }).join('') + '</ol>' : '') +
+  function map(sc) {
+    return '<div class="map"><div class="eyebrow">' + (sc.kind === 'intro' ? 'The path through the change, in the order it runs' : 'The path you just walked') + '</div>' + S.map((s, i) => {
+      let edge = '';
+      if (i) {
+        const p = S[i - 1], d = s.depth - p.depth, kind = d > 0 ? 'into' : d < 0 ? 'outof' : '';
+        edge = '<div class="medge" style="--d:' + Math.min(s.depth, p.depth) + '"><span class="ek ' + kind + '">' + (d > 0 ? '↘ calls' : d < 0 ? '↖ returns to' : '↓ then') + '</span>' + (p.out ? '<span>' + esc(p.out.label) + '</span>' : '') + '</div>';
+      }
+      return edge + '<button class="mrow ' + s.status + '" data-sc="' + sceneOfStop(i) + '" data-stop="' + i + '" style="--d:' + s.depth + '"><span class="n">' + (i + 1) + '</span>' +
+        '<span><code>' + esc(s.at) + '</code> <span class="mt">· ' + esc(s.title) + '</span></span><span class="mf">' + esc(s.file) + '</span><span class="badge ' + s.status + '">' + STATUS[s.status] + '</span></button>';
+    }).join('') + '</div>';
+  }
+
+  function story(sc) {
+    let head;
+    if (sc.kind === 'stop') {
+      const s = sc.s, mv = moveOf(sc.i);
+      head = '<div class="eyebrow">Stop ' + (sc.i + 1) + ' of ' + S.length + ' · <span class="role ' + s.role + '">' + s.role + '</span>' + (mv ? ' · ' + mv : '') + '</div>' +
+        '<h2>' + esc(s.title) + '</h2><code class="at">' + esc(s.at) + '</code><p class="say">' + esc(s.say) + '</p>';
+    } else if (sc.kind === 'intro') head = '<div class="eyebrow">Overview</div><h2>' + esc(T.title) + '</h2><p class="say">' + esc(T.what) + '</p>';
+    else head = '<div class="eyebrow">Recap</div><h2>What to remember</h2><p class="say">' + esc(T.why) + '</p>';
+    const tx = sc.segs.length ? '<div class="txh"><h3>Narration</h3><span>' + sc.segs.length + ' parts · ' + fmt(sc.end - sc.start) + '</span></div><ol class="tx">' +
+      sc.segs.map((g, k) => '<li data-k="' + k + '">' + (g.lines ? '<span class="ln">' + span(g.lines) + '</span>' : '') + rich(g.tok) + '</li>').join('') + '</ol>' : '';
+    if (sc.kind !== 'stop') return head + '<div class="defs" id="defs"></div>' + tx;
+    const s = sc.s, d = DEC[s.decision];
+    return head + '<div class="defs" id="defs"></div>' + tx +
+      (s.notes && s.notes.length ? '<ol class="notes">' + s.notes.map((t, k) =>
+        '<li data-line="' + t.line + '"><span class="pin">' + (k + 1) + '</span><span>' + esc(t.text) + '</span><span class="ln">L' + t.line + '</span></li>').join('') + '</ol>' : '') +
       (d ? '<div class="dec"><button class="dchip" aria-expanded="false"><code>' + esc(d.id) + '</code><span>' + esc(d.title) + '</span></button><div class="dbody" hidden><dl>' +
         '<dt>chose</dt><dd>' + esc(d.chose) + '</dd><dt>over</dt><dd>' + esc(d.over) + '</dd><dt>because</dt><dd>' + esc(d.because) + '</dd></dl>' +
         '<span class="badges">' + badges(d) + '</span></div></div>' : '');
   }
 
-  function moveToken(i) {
-    var c = document.querySelector('.chip[data-i="' + i + '"]'), t = $('#token');
-    t.style.width = c.offsetWidth + 'px'; t.style.height = c.offsetHeight + 'px';
-    t.style.transform = 'translate(' + c.offsetLeft + 'px,' + c.offsetTop + 'px)';
-  }
-
-  function reveal(sc) {
-    var f = sc.querySelectorAll('.focus'), top = f[0].offsetTop - 34, bottom = f[f.length - 1].offsetTop + 54;
-    sc.scrollTop = Math.min(top, (top + bottom - sc.clientHeight) / 2);
-  }
-
-  function go(i) {
-    i = Math.max(0, Math.min(S.length - 1, i));
-    if (i === cur) return;
-    cur = i;
-    var s = S[i], pane = $('#editor'), old = pane.lastElementChild;
-    if (old) { if (still) pane.removeChild(old); else { old.className = 'ed out'; setTimeout(function () { old.remove(); }, 340); } }
-    pane.insertAdjacentHTML('beforeend', '<div class="ed">' + editor(s) + '</div>');
-    reveal(pane.lastElementChild.querySelector('.code'));
-    $('#story').innerHTML = story(s, i);
-    document.querySelectorAll('.chip').forEach(function (c) { c.toggleAttribute('aria-current', +c.dataset.i === i); });
-    document.querySelectorAll('.dot').forEach(function (c) { c.classList.toggle('on', +c.dataset.i === i); });
-    document.querySelectorAll('.drow').forEach(function (r) { r.classList.toggle('cur', r.dataset.id === s.decision); });
-    $('#prev').disabled = i === 0; $('#next').disabled = i === S.length - 1;
-    moveToken(i);
-    history.replaceState(null, '', '#' + (i + 1));
-  }
-
-  function lightLine(n) {
-    document.querySelectorAll('.row.hl').forEach(function (r) { r.classList.remove('hl'); });
-    if (n) document.querySelectorAll('.ed:not(.out) .row[data-line="' + n + '"]').forEach(function (r) { r.classList.add('hl'); });
-  }
-
-  // Static parts: header, path strip, cards, footer.
+  // ---- static parts: header, path strip, cards, footer -------------------------------------------
   document.title = T.title + ' · grasp';
   $('#title').textContent = T.title;
   $('#meta').innerHTML = [T.repo, T.branch, T.date].filter(Boolean).map(esc)
@@ -336,57 +514,394 @@
   $('#risk').innerHTML = '<b>' + esc(T.risk.level) + ' risk</b>' + esc(T.risk.note);
   $('#what').textContent = T.what;
   $('#why').textContent = T.why;
-  $('#strip').innerHTML = '<span class="token" id="token"></span>' + S.map(function (s, i) {
-    var o = i && S[i - 1].out;
-    return (i ? '<span class="arrow"' + (o ? ' title="' + esc(o.label) + '"' : '') + '><span>' + esc(o ? o.label : '') + '</span><i></i></span>' : '') +
-      '<button class="chip ' + s.status + '" data-i="' + i + '" title="' + esc(s.file) + ' · ' + STATUS[s.status] + '"><span class="n">' + (i + 1) + '</span>' + esc(s.at) + '</button>';
+  $('#strip').innerHTML = '<span class="token" id="token"></span>' + scenes.map((sc, si) => {
+    let arrow = '';
+    if (si) {
+      const p = scenes[si - 1], o = sc.kind === 'stop' && p.kind === 'stop' && p.s.out, d = o ? sc.s.depth - p.s.depth : 0;
+      arrow = '<span class="arrow"' + (o ? ' title="' + esc(o.label) + '"' : '') + '><span>' + (d > 0 ? '↘ ' : d < 0 ? '↖ ' : '') + esc(o ? o.label : '') + '</span><i></i></span>';
+    }
+    if (sc.kind !== 'stop') return arrow + '<button class="chip ends" data-sc="' + si + '">' + sc.name + '</button>';
+    const s = sc.s;
+    return arrow + '<button class="chip ' + s.status + '" data-sc="' + si + '" title="' + esc(s.file) + ' · ' + STATUS[s.status] + (s.depth ? ' · call depth ' + s.depth : '') + '"><span class="n">' + (sc.i + 1) + '</span>' + esc(s.at) + '</button>';
   }).join('') + '<span class="legend"><span class="new">new</span><span class="changed">changed</span><span class="context">context</span></span>';
-  $('#dots').innerHTML = S.map(function (s, i) { return '<button class="dot" data-i="' + i + '" aria-label="Stop ' + (i + 1) + '"></button>'; }).join('');
+  $('#dots').innerHTML = scenes.map((sc, si) => '<button class="dot' + (sc.kind !== 'stop' ? ' ends' : '') + '" data-sc="' + si + '" aria-label="' + esc(sc.kind === 'stop' ? 'Stop ' + (sc.i + 1) : sc.name) + '"></button>').join('');
 
-  var D = T.decisions || [], R = T.risks || [], O = T.offPath || [];
-  $('#decisions').innerHTML = '<h3>Decisions <span>· ' + D.length + '</span></h3>' + D.map(function (d) {
-    return '<div class="drow" data-id="' + esc(d.id) + '"><code>' + esc(d.id) + '</code><b>' + esc(d.title) + '</b><span>' + esc(d.chose) +
-      '</span><span><span class="lbl">over</span>' + esc(d.over) + '</span><span><span class="lbl">because</span>' + esc(d.because) + '</span><span class="badges">' + badges(d) + '</span></div>';
-  }).join('');
-  $('#risks').innerHTML = '<h3>Risks <span>· ' + R.length + '</span></h3><ul>' + R.map(function (r) {
-    return '<li>' + esc(r.text) + '<div>' + (r.covered ? '<span class="tag ok">covered</span><span class="tagtext">' + esc(r.covered) + '</span>' : '') +
-      (r.gap ? '<span class="tag gap">gap</span><span class="tagtext">' + esc(r.gap) + '</span>' : '') + '</div></li>';
-  }).join('') + '</ul>';
-  $('#off').innerHTML = '<h3>Off the path <span>· supporting code, skim only</span></h3><ul>' + O.map(function (o) {
-    return '<li><code>' + esc(o.file) + '</code><span class="what">' + esc(o.what) + '</span><span class="stat">' +
-      esc(o.stat).replace(/\+\d+/, '<span class="a">$&</span>').replace(/-\d+/, '<span class="d">$&</span>') + '</span></li>';
-  }).join('') + '</ul>';
-  $('#foot').textContent = 'private file under ~/.grasp, not part of the repo' + (T.words ? ' · ' + T.words + ' words' : '');
+  const D = T.decisions || [], R = T.risks || [], O = T.offPath || [];
+  $('#decisions').innerHTML = '<h3>Decisions <span>· ' + D.length + '</span></h3>' + D.map(d =>
+    '<div class="drow" data-id="' + esc(d.id) + '"><code>' + esc(d.id) + '</code><b>' + esc(d.title) + '</b><span>' + esc(d.chose) +
+    '</span><span><span class="lbl">over</span>' + esc(d.over) + '</span><span><span class="lbl">because</span>' + esc(d.because) + '</span><span class="badges">' + badges(d) + '</span></div>').join('');
+  $('#risks').innerHTML = '<h3>Risks <span>· ' + R.length + '</span></h3><ul>' + R.map(r =>
+    '<li>' + esc(r.text) + '<div>' + (r.covered ? '<span class="tag ok">covered</span><span class="tagtext">' + esc(r.covered) + '</span>' : '') +
+    (r.gap ? '<span class="tag gap">gap</span><span class="tagtext">' + esc(r.gap) + '</span>' : '') + '</div></li>').join('') + '</ul>';
+  $('#off').innerHTML = '<h3>Off the path <span>· supporting code, skim only</span></h3><ul>' + O.map(o =>
+    '<li><code>' + esc(o.file) + '</code><span class="what">' + esc(o.what) + '</span><span class="stat">' +
+    esc(o.stat).replace(/\+\d+/, '<span class="a">$&</span>').replace(/-\d+/, '<span class="d">$&</span>') + '</span></li>').join('') + '</ul>';
+  $('#terms').innerHTML = '<h3>Words to know <span>· ' + TERMS.length + '</span></h3><dl>' + TERMS.map(t => '<dt>' + esc(t.term) + '</dt><dd>' + esc(t.def) + '</dd>').join('') + '</dl>';
+  const VOICE_NAME = { af_heart: 'Heart', af_bella: 'Bella', am_michael: 'Michael', am_fenrir: 'Fenrir', am_puck: 'Puck', bf_emma: 'Emma', bm_george: 'George', bm_fable: 'Fable' };
+  const hasClips = flat.some(x => x.g.audio);
+  $('#foot').textContent = 'private file under ~/.grasp, not part of the repo' + (T.words ? ' · ' + T.words + ' words on the page' : '') +
+    (narrated ? ' · ' + fmt(TOTAL) + ' of narration' : '') + (hasClips ? ' · voice: ' + (VOICE_NAME[T.voice] || T.voice) + ' (Kokoro, made on this machine)' : '');
   if (!D.length) $('#decisions').remove();
   if (!R.length) $('#risks').remove();
   if (!O.length) $('#off').remove();
+  if (!TERMS.length) $('#terms').remove();
 
-  // Navigation: buttons, chips, dots, keys, hash.
-  document.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-i],#prev,#next,.rmbtn,.dchip');
-    if (!t) return;
-    if (t.id === 'prev') go(cur - 1);
-    else if (t.id === 'next') go(cur + 1);
-    else if (t.dataset.i) go(+t.dataset.i);
+  // ---- the voice: natural clips, the browser's own voice, or captions only ---------------------
+  const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  let bvoice = null;
+  function pickVoice() {
+    if (!canSpeak) return null;
+    const score = v => (/natural|neural/i.test(v.name) ? 8 : 0) + (/google/i.test(v.name) ? 4 : 0) + (/online/i.test(v.name) ? 2 : 0) +
+      (/aria|ava|jenny|emma|andrew|brian|samantha|daniel/i.test(v.name) ? 1 : 0) + (/en[-_]US/i.test(v.lang) ? 1 : 0);
+    return speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)).sort((a, b) => score(b) - score(a))[0] || null;
+  }
+  const modes = () => [hasClips && ['natural', 'Natural · ' + (VOICE_NAME[T.voice] || T.voice)], canSpeak && ['browser', 'Browser' + (bvoice ? ' · ' + bvoice.name.replace(/^(Microsoft|Google)\s+/, '').replace(/\s+-\s+.*$/, '').replace(/\s*\(.*?\)/g, '') : '')], ['quiet', 'Captions only']].filter(Boolean);
+  let mode = store.get('voice', hasClips ? 'natural' : canSpeak ? 'browser' : 'quiet');
+  if (!modes().some(m => m[0] === mode)) mode = modes()[0][0];
+  let rate = +store.get('rate', 1) || 1, auto = store.get('auto', true) !== false;
+  function fillVoices() { $('#voice').innerHTML = modes().map(m => '<option value="' + m[0] + '"' + (m[0] === mode ? ' selected' : '') + '>' + esc(m[1]) + '</option>').join(''); }
+  if (canSpeak) { bvoice = pickVoice(); speechSynthesis.addEventListener('voiceschanged', () => { bvoice = pickVoice(); fillVoices(); }); }
+
+  const clips = new Map();
+  function clipFor(src) { let a = clips.get(src); if (!a) { a = new Audio(); a.preload = 'auto'; a.src = src; clips.set(src, a); } return a; }
+  function natural(g, onFrac, onEnd, onFail) {
+    const a = clipFor(g.audio);
+    let raf = 0, dead = false;
+    const tick = () => { if (dead) return; if (a.duration) onFrac(a.currentTime / a.duration); raf = requestAnimationFrame(tick); };
+    const go = () => { a.playbackRate = rate; a.play().then(() => { if (!dead && playing) { cancelAnimationFrame(raf); tick(); } }, e => { if (dead || e.name === 'AbortError') return; if (e.name === 'NotAllowedError') blocked(); else { dead = true; onFail(); } }); };
+    a.onended = () => { cancelAnimationFrame(raf); if (!dead) { dead = true; onFrac(1); onEnd(); } };
+    a.onerror = () => { cancelAnimationFrame(raf); if (!dead) { dead = true; onFail(); } };
+    a.currentTime = 0; go();
+    return { pause() { a.pause(); cancelAnimationFrame(raf); }, resume: go, stop() { dead = true; a.pause(); cancelAnimationFrame(raf); a.onended = a.onerror = null; }, rate(r) { a.playbackRate = r; } };
+  }
+  function browser(g, onFrac, onEnd) {
+    const text = g.spoken || g.tok.disp;
+    let raf = 0, dead = false, live = null;
+    const say = () => {
+      const u = new SpeechSynthesisUtterance(text);
+      if (bvoice) { u.voice = bvoice; u.lang = bvoice.lang; } else u.lang = 'en-US';
+      u.rate = rate;
+      let bound = false;
+      const t0 = performance.now(), ms = est(g) * 1000 / rate;
+      u.onboundary = e => { if (u === live) { bound = true; onFrac(Math.min(0.99, e.charIndex / text.length)); } };
+      u.onend = () => { if (u === live && !dead) { dead = true; cancelAnimationFrame(raf); onFrac(1); onEnd(); } };
+      u.onerror = e => { if (u === live && !dead && e.error !== 'interrupted' && e.error !== 'canceled') { dead = true; cancelAnimationFrame(raf); onEnd(); } };
+      live = u; window.__graspUtterance = u; // keep a reference: some browsers drop events of collected utterances
+      if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+      const tick = () => { if (dead || u !== live) return; if (!bound) onFrac(Math.min(0.97, (performance.now() - t0) / ms)); raf = requestAnimationFrame(tick); };
+      cancelAnimationFrame(raf); tick();
+    };
+    // Chrome's online voices go silent after about 15 seconds unless nudged.
+    const nudge = bvoice && !bvoice.localService ? setInterval(() => { if (live && speechSynthesis.speaking) { speechSynthesis.pause(); speechSynthesis.resume(); } }, 10000) : 0;
+    const end = () => { live = null; clearInterval(nudge); speechSynthesis.cancel(); cancelAnimationFrame(raf); };
+    say();
+    // Browsers pause speech unreliably, so pause stops and resume says the sentence again.
+    return { pause: end, resume: say, stop() { dead = true; end(); } };
+  }
+  function quiet(g, onFrac, onEnd) {
+    const ms = est(g) * 1000;
+    let done = 0, t0 = performance.now(), raf = 0, dead = false;
+    const tick = () => {
+      const f = (done + (performance.now() - t0) * rate) / ms;
+      if (f >= 1) { if (!dead) { dead = true; onFrac(1); onEnd(); } return; }
+      onFrac(f); raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return { pause() { done += (performance.now() - t0) * rate; cancelAnimationFrame(raf); }, resume() { t0 = performance.now(); tick(); }, stop() { dead = true; cancelAnimationFrame(raf); }, rate() { done += (performance.now() - t0) * rate; t0 = performance.now(); } };
+  }
+  function voice(g, onFrac, onEnd) {
+    const fallback = () => { handle = canSpeak && mode !== 'quiet' ? browser(g, onFrac, onEnd) : quiet(g, onFrac, onEnd); };
+    if (mode === 'natural' && g.audio) return natural(g, onFrac, onEnd, fallback);
+    if (mode !== 'quiet' && canSpeak) return browser(g, onFrac, onEnd);
+    return quiet(g, onFrac, onEnd);
+  }
+
+  // ---- playback state ------------------------------------------------------------------------------
+  let cur = -1, segK = 0, playing = false, handle = null, timer = 0, finished = false, sceneDone = false, cued = false;
+  let capWords = [], shown = new Set(), opened = [];
+  const seg = () => scenes[cur] && scenes[cur].segs[segK];
+
+  function show(si) {
+    si = Math.max(0, Math.min(scenes.length - 1, si));
+    const prev = cur, sc = scenes[si], pane = $('#pane'), old = pane.lastElementChild;
+    cur = si; segK = 0; sceneDone = false; shown = new Set();
+    let dir = '';
+    if (sc.kind === 'stop' && prev >= 0 && scenes[prev] && scenes[prev].kind === 'stop') { const d = sc.s.depth - scenes[prev].s.depth; dir = d > 0 ? ' into' : d < 0 ? ' outof' : ''; }
+    if (old) { if (still) old.remove(); else { old.className = 'ed out'; setTimeout(() => old.remove(), 340); } }
+    pane.insertAdjacentHTML('beforeend', '<div class="ed' + dir + '">' + (sc.kind === 'stop' ? editor(sc.s, sc.i) : map(sc)) + '</div>');
+    if (sc.kind === 'stop') reveal(sc.s.focus);
+    $('#story').innerHTML = story(sc);
+    $('#narr').scrollTop = 0;
+    $$('.chip').forEach(c => c.toggleAttribute('aria-current', +c.dataset.sc === si));
+    $$('.dot').forEach(c => c.classList.toggle('on', +c.dataset.sc === si));
+    $$('.drow').forEach(r => r.classList.toggle('cur', sc.kind === 'stop' && r.dataset.id === sc.s.decision));
+    $('#prev').disabled = si === 0; $('#next').disabled = si === scenes.length - 1;
+    moveToken(si);
+    const mv = sc.kind === 'stop' ? moveOf(sc.i) : '';
+    $('#where').innerHTML = (sc.kind === 'stop' ? 'Stop ' + (sc.i + 1) + ' of ' + S.length + ' · <b>' + esc(sc.s.at) + '</b>' : '<b>' + sc.name + '</b>') +
+      (mv ? '<span class="mv">' + mv + '</span>' : '');
+    history.replaceState(null, '', '#' + (sc.kind === 'stop' ? sc.i + 1 : sc.kind === 'intro' ? 'intro' : 'recap'));
+  }
+
+  function cue(si, k) {
+    if (si !== cur) show(si);
+    segK = k; finished = false; sceneDone = false; cued = true;
+    const sc = scenes[cur], g = seg();
+    clearGlow();
+    if (!g) { $('#caption').innerHTML = hint(); return; }
+    $$('.tx li').forEach(li => { const n = +li.dataset.k; li.classList.toggle('now', n === k); li.classList.toggle('past', n < k); });
+    const li = $('.tx li.now'), box = $('#narr');
+    if (li && box.scrollHeight > box.clientHeight) {
+      const top = li.offsetTop - box.offsetTop;
+      if (top < box.scrollTop + 60 || top + li.offsetHeight > box.scrollTop + box.clientHeight - 20) box.scrollTo({ top: top - box.clientHeight / 3, behavior: still ? 'auto' : 'smooth' });
+    }
+    $('#caption').innerHTML = capTag(sc, g) + '<p class="cap' + (playing ? '' : ' idle') + '">' + rich(g.tok) + '</p>';
+    capWords = $$('#caption .w');
+    if (sc.kind === 'stop') { spotlight(g.lines || sc.s.focus, g); follow($('#editor')); }
     else {
-      var box = t.classList.contains('rmbtn') ? t.parentNode.nextElementSibling : t.nextElementSibling;
+      if (g.show) glow(g.show);
+      if (g.chip) { const c = sceneOfStop(g.chip - 1); $$('.chip[data-sc="' + c + '"],.mrow[data-sc="' + c + '"]').forEach(e => e.classList.add('glow')); }
+      if (!g.show || g.show === 'flow') follow($('#editor'));
+    }
+    if (g.decision) {
+      $$('.drow').forEach(r => r.classList.toggle('cur', r.dataset.id === g.decision));
+      const dc = $('.dchip'), body = dc && dc.nextElementSibling;
+      if (dc && sc.kind === 'stop' && sc.s.decision === g.decision) { body.hidden = false; dc.setAttribute('aria-expanded', 'true'); }
+      if (sc.kind !== 'stop') { const r = $('.drow[data-id="' + g.decision + '"]'); if (r) { r.classList.add('glow'); follow(r); } }
+    }
+    if (!playing) g.tok.words.forEach(x => { if (x.term) define(x.term); });
+    progress(g.t0);
+  }
+
+  function capTag(sc, g) {
+    if (sc.kind !== 'stop') return '<div class="captag"><span>' + (sc.kind === 'intro' ? 'Overview' : 'Recap') + ' · ' + (segK + 1) + ' of ' + sc.segs.length + '</span></div>';
+    const s = sc.s, r = g.lines || s.focus;
+    let n = 0, all = r[1] - r[0] + 1;
+    for (let k = r[0]; k <= r[1]; k++) if ((s.added || []).indexOf(k) >= 0) n++;
+    const kind = n === all ? '<span class="new">new code</span>' : n ? '<span class="changed">partly new</span>' : '<span>unchanged code</span>';
+    return '<div class="captag"><span>' + esc(s.file.replace(/^.*\//, '')) + ' · lines ' + r[0] + (r[1] !== r[0] ? '–' + r[1] : '') + '</span>' + kind +
+      (g.removed ? '<span class="old">+ what it replaced</span>' : '') + '<span>' + (segK + 1) + ' of ' + sc.segs.length + '</span></div>';
+  }
+  const hint = () => '<p class="hint">' + (narrated
+    ? 'Press <b>Play</b> or <kbd>Space</kbd> for the guided walkthrough (' + fmt(TOTAL) + '). It talks you through each stop line by line and moves on by itself. <kbd>←</kbd> <kbd>→</kbd> jump between stops, <kbd>[</kbd> <kbd>]</kbd> between sentences.'
+    : 'Use <kbd>←</kbd> <kbd>→</kbd> or the chips above to step through the change.') + '</p>';
+
+  // Light the lines the voice is talking about, box the identifiers it names in `code`, and keep them in view.
+  function spotlight(r, g) {
+    const ed = $('#pane').lastElementChild, lines = ed && ed.querySelector('.lines');
+    if (!lines) return;
+    opened.forEach(b => { b.hidden = true; b.previousElementSibling.querySelector('.rmbtn').setAttribute('aria-expanded', 'false'); });
+    opened = [];
+    if (g.removed) ed.querySelectorAll('[data-rm]').forEach(row => {
+      const n = +row.dataset.rm, box = row.nextElementSibling;
+      if (n >= r[0] && n <= r[1] + 1 && box.hidden) { box.hidden = false; row.querySelector('.rmbtn').setAttribute('aria-expanded', 'true'); opened.push(box); }
+    });
+    lines.classList.add('speaking');
+    let first = null, last = null;
+    lines.querySelectorAll('[data-line]').forEach(el => {
+      const n = +el.dataset.line, rm = el.classList.contains('rm') || el.classList.contains('del');
+      const on = (n >= r[0] && n <= r[1]) || !!(rm && g.removed && n === r[1] + 1);
+      el.classList.toggle('spot', on);
+      if (on && el.offsetParent) { first = first || el; last = el; }
+    });
+    ed.querySelectorAll('mark.tok').forEach(m => m.replaceWith(m.textContent));
+    ed.querySelectorAll('.src').forEach(x => x.normalize());
+    const names = new Set();
+    (g.say.match(/`[^`]+`/g) || []).forEach(c => (c.match(/[A-Za-z_$][\w$]*/g) || []).forEach(n => { if (n.length > 1) names.add(n); }));
+    if (names.size) {
+      const re = new RegExp('(?<![\\w$])(' + [...names].map(escRe).join('|') + ')(?![\\w$])', 'g');
+      lines.querySelectorAll('.row.spot:not(.note) .src').forEach(src => {
+        const walk = document.createTreeWalker(src, NodeFilter.SHOW_TEXT), nodes = [];
+        while (walk.nextNode()) nodes.push(walk.currentNode);
+        nodes.forEach(node => {
+          const t = node.nodeValue;
+          re.lastIndex = 0;
+          if (!re.test(t)) return;
+          const frag = document.createDocumentFragment();
+          let at = 0, m;
+          re.lastIndex = 0;
+          while ((m = re.exec(t))) { frag.append(t.slice(at, m.index)); const mk = document.createElement('mark'); mk.className = 'tok'; mk.textContent = m[0]; frag.append(mk); at = m.index + m[0].length; }
+          frag.append(t.slice(at));
+          node.replaceWith(frag);
+        });
+      });
+    }
+    if (first) center(ed.querySelector('.code'), first, last);
+  }
+  function center(box, a, b) {
+    const top = a.offsetTop - 28, bottom = b.offsetTop + b.offsetHeight + 28;
+    const to = bottom - top > box.clientHeight ? top : (top + bottom - box.clientHeight) / 2;
+    box.scrollTo({ top: Math.max(0, to), behavior: still ? 'auto' : 'smooth' });
+  }
+  function reveal(r) {
+    const box = $('#pane').lastElementChild.querySelector('.code'), f = box.querySelectorAll('.focus');
+    if (f.length) center(box, f[0], f[f.length - 1]);
+  }
+  const SHOW = { what: ['#what-dt', '#what'], why: ['#why-dt', '#why'], risk: ['#risk'], flow: ['#strip', '.map'], decisions: ['#decisions'], risks: ['#risks'], off: ['#off'], terms: ['#terms'] };
+  function glow(key) {
+    const els = (SHOW[key] || []).map(s => $(s)).filter(Boolean);
+    els.forEach(e => e.classList.add('glow'));
+    if (els[0] && key !== 'flow') follow(els[els.length - 1]);
+  }
+  function clearGlow() { $$('.glow').forEach(e => e.classList.remove('glow')); }
+  // While playing, the page scrolls to whatever the voice is talking about.
+  function follow(el) {
+    if (!playing || !el) return;
+    const p = $('#player'), r = el.getBoundingClientRect(), top = (getComputedStyle(p).position === 'sticky' ? p.offsetHeight : 0) + 8;
+    if (r.top < top || r.top > innerHeight - 120) el.scrollIntoView({ block: r.height > innerHeight - top ? 'start' : 'center', behavior: still ? 'auto' : 'smooth' });
+  }
+  function define(t) {
+    if (shown.has(t.i)) return;
+    shown.add(t.i);
+    const box = $('#defs');
+    if (!box) return;
+    box.insertAdjacentHTML('afterbegin', '<div class="def"><b>' + esc(t.term) + '</b>' + esc(t.def) + '</div>');
+    while (box.children.length > 3) box.lastElementChild.remove();
+  }
+  function karaoke(f) {
+    const g = seg();
+    if (!g) return;
+    g.tok.words.forEach((x, j) => {
+      const el = capWords[j];
+      if (!el) return;
+      const said = x.f1 <= f, now = !said && x.f0 <= f;
+      el.classList.toggle('said', said); el.classList.toggle('now', now);
+      if ((said || now) && x.term) define(x.term);
+    });
+    progress(g.t0 + Math.min(1, f) * est(g));
+  }
+  function progress(t) {
+    $('#fill').style.width = (100 * Math.min(1, t / TOTAL)) + '%';
+    $('#time').textContent = fmt(t) + ' / ' + fmt(TOTAL);
+  }
+
+  function speakNow() {
+    clearTimeout(timer);
+    if (handle) { handle.stop(); handle = null; }
+    const g = seg();
+    if (!g) return;
+    const p = $('.cap'); if (p) p.classList.remove('idle');
+    handle = voice(g, karaoke, () => { handle = null; advance(); });
+    const n = upcoming();
+    if (n && n.audio && mode === 'natural') clipFor(n.audio);
+  }
+  function upcoming() { const sc = scenes[cur]; return sc.segs[segK + 1] || (scenes[cur + 1] && scenes[cur + 1].segs[0]); }
+  function advance() {
+    if (!playing) return;
+    let si = cur, k = segK + 1, gap = GAP;
+    if (k >= scenes[si].segs.length) {
+      if (si + 1 >= scenes.length) return finish();
+      if (!auto) { sceneDone = true; pause(); $('#caption').insertAdjacentHTML('beforeend', '<p class="hint" style="margin-top:6px">End of this stop. Press <b>Play</b> or <kbd>→</kbd> for the next one.</p>'); return; }
+      si++; k = 0; gap = SCENE_GAP;
+    }
+    cue(si, k);
+    timer = setTimeout(speakNow, gap * 1000 / rate);
+  }
+  function finish() {
+    playing = false; finished = true; handle = null; button();
+    progress(TOTAL);
+    $('#caption').insertAdjacentHTML('beforeend', '<p class="hint" style="margin-top:8px"><b>That\'s the whole walkthrough.</b> Back in your terminal, pick <b>Quiz me</b>, ask a question, or call it done. Press Play to hear it again.</p>');
+  }
+  function play() {
+    if (!narrated) return;
+    if (finished) { finished = false; cue(0, 0); }
+    else if (sceneDone && cur + 1 < scenes.length) cue(cur + 1, 0);
+    else if (!cued) cue(Math.max(0, cur), segK);
+    playing = true; button();
+    if (handle && handle.resume) handle.resume(); else speakNow();
+  }
+  function pause() { playing = false; clearTimeout(timer); if (handle) handle.pause(); button(); }
+  function blocked() { playing = false; handle = null; button(); }
+  function stopVoice() { clearTimeout(timer); if (handle) { handle.stop(); handle = null; } }
+  function jump(si, k) { stopVoice(); cue(si, k); if (playing) speakNow(); else { const p = $('.cap'); if (p) p.classList.add('idle'); } }
+  function goScene(si) { si = Math.max(0, Math.min(scenes.length - 1, si)); if (si === cur && !playing) return; jump(si, 0); }
+  function stepSeg(d) {
+    let si = cur, k = segK + d;
+    if (k < 0) { if (si === 0) k = 0; else { si--; k = scenes[si].segs.length - 1; } }
+    else if (k >= scenes[si].segs.length) { if (si + 1 < scenes.length) { si++; k = 0; } else k = scenes[si].segs.length - 1; }
+    jump(si, Math.max(0, k));
+  }
+  function button() {
+    $('#playlbl').textContent = playing ? 'Pause' : finished ? 'Replay' : handle || cur > 0 || segK > 0 ? 'Resume' : 'Play walkthrough';
+    $('#playicon').innerHTML = $('#fab svg').innerHTML = playing ? '<path d="M4 2.5h3v11H4zM9 2.5h3v11H9z"/>' : '<path d="M4 2.5v11l9-5.5z"/>';
+  }
+  function moveToken(si) {
+    const c = $('.chip[data-sc="' + si + '"]'), t = $('#token');
+    if (!c) return;
+    t.style.width = c.offsetWidth + 'px'; t.style.height = c.offsetHeight + 'px';
+    t.style.transform = 'translate(' + c.offsetLeft + 'px,' + c.offsetTop + 'px)';
+  }
+  function lightLine(n) {
+    $$('.row.hl').forEach(r => r.classList.remove('hl'));
+    if (n) $$('.ed:not(.out) .row[data-line="' + n + '"]').forEach(r => r.classList.add('hl'));
+  }
+
+  // ---- wiring ------------------------------------------------------------------------------------------
+  if (narrated) {
+    $('#player').hidden = false;
+    $('#fab').hidden = false;
+    $('#bar').innerHTML = '<div class="fill" id="fill"></div>' + scenes.slice(1).map(sc => '<i style="left:' + (100 * sc.start / TOTAL) + '%"></i>').join('');
+    $('#bar').title = scenes.map(sc => fmt(sc.start) + '  ' + (sc.kind === 'stop' ? (sc.i + 1) + '. ' + sc.s.at : sc.name)).join('\n');
+    fillVoices();
+    $('#rate').value = String(rate);
+    if ($('#rate').selectedIndex < 0) { rate = 1; $('#rate').value = '1'; }
+    $('#auto').checked = auto;
+  }
+  $('#play').addEventListener('click', () => (playing ? pause() : play()));
+  $('#fab').addEventListener('click', () => (playing ? pause() : play()));
+  $('#back').addEventListener('click', () => stepSeg(-1));
+  $('#fwd').addEventListener('click', () => stepSeg(1));
+  $('#bar').addEventListener('click', e => {
+    const r = e.currentTarget.getBoundingClientRect(), t = (e.clientX - r.left) / r.width * TOTAL;
+    let pick = flat[0];
+    flat.forEach(x => { if (x.g.t0 <= t) pick = x; });
+    jump(pick.si, pick.k);
+  });
+  $('#rate').addEventListener('change', e => { const r = +e.target.value; if (handle && handle.rate) handle.rate(r); rate = r; store.set('rate', r); });
+  $('#voice').addEventListener('change', e => { mode = e.target.value; store.set('voice', mode); if (handle) { const was = playing; stopVoice(); if (was) speakNow(); } });
+  $('#auto').addEventListener('change', e => { auto = e.target.checked; store.set('auto', auto); });
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-sc],#prev,#next,.rmbtn,.dchip,.tx li');
+    if (!t) return;
+    if (t.id === 'prev') goScene(cur - 1);
+    else if (t.id === 'next') goScene(cur + 1);
+    else if (t.dataset.sc) goScene(+t.dataset.sc);
+    else if (t.matches('.tx li')) { jump(cur, +t.dataset.k); if (!playing) play(); }
+    else {
+      const box = t.classList.contains('rmbtn') ? t.parentNode.nextElementSibling : t.nextElementSibling;
       box.hidden = !box.hidden;
       t.setAttribute('aria-expanded', !box.hidden);
     }
   });
-  addEventListener('keydown', function (e) {
-    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-    var k = { ArrowRight: cur + 1, ArrowLeft: cur - 1, Home: 0, End: S.length - 1 }[e.key];
+  addEventListener('keydown', e => {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.target.matches('input,select,textarea')) return;
+    if ((e.key === ' ' || e.key === 'k') && narrated) { if (e.target.matches('button') && e.key === ' ') return; e.preventDefault(); playing ? pause() : play(); return; }
+    if (e.key === '[' || e.key === ']') { e.preventDefault(); stepSeg(e.key === ']' ? 1 : -1); return; }
+    if (e.shiftKey) return;
+    const k = { ArrowRight: cur + 1, ArrowLeft: cur - 1, Home: 0, End: scenes.length - 1 }[e.key];
     if (k === undefined) return;
     e.preventDefault();
-    go(k);
+    if (e.key === 'ArrowRight' && sceneDone) { play(); return; }
+    goScene(k);
   });
-  $('#story').addEventListener('mouseover', function (e) { var li = e.target.closest('li[data-line]'); lightLine(li && li.dataset.line); });
-  $('#story').addEventListener('mouseleave', function () { lightLine(null); });
-  addEventListener('hashchange', function () { go((parseInt(location.hash.slice(1), 10) || 1) - 1); });
-  addEventListener('resize', function () { moveToken(cur); });
+  $('#story').addEventListener('mouseover', e => { const li = e.target.closest('.notes li[data-line]'); lightLine(li && li.dataset.line); });
+  $('#story').addEventListener('mouseleave', () => lightLine(null));
+  addEventListener('hashchange', () => { const si = fromHash(); if (si !== cur) goScene(si); });
+  addEventListener('resize', () => moveToken(cur));
+  addEventListener('pagehide', () => { if (canSpeak) speechSynthesis.cancel(); });
 
-  go((parseInt(location.hash.slice(1), 10) || 1) - 1);
+  function fromHash() {
+    const h = location.hash.slice(1);
+    if (h === 'intro') return 0;
+    if (h === 'recap') return scenes.length - 1;
+    const n = parseInt(h, 10);
+    return n >= 1 && n <= S.length ? sceneOfStop(n - 1) : 0;
+  }
+  show(fromHash());
+  $('#caption').innerHTML = hint();
+  if (narrated) { progress(scenes[cur].start); button(); }
+  else $('#caption').hidden = true;
   $('#token').offsetWidth;
   $('#token').classList.add('ready');
 })();

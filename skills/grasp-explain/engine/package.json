@@ -1,0 +1,9 @@
+{
+  "name": "grasp-voice",
+  "private": true,
+  "description": "The local voice engine for grasp walkthroughs: Kokoro-82M through kokoro-js. Installed under <grasp home>/_voice.",
+  "license": "MIT",
+  "dependencies": {
+    "kokoro-js": "1.2.1"
+  }
+}

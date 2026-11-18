@@ -6,7 +6,7 @@ license: MIT
 compatibility: Needs an agent that can start sub-agents. Written for Claude Code; untested elsewhere.
 metadata:
   suite: grasp
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # grasp-pm
