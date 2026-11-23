@@ -7,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_VOICE, VOICES, clipId, graspHome, installed, openEngine, speak, speakable, wav, wavSeconds } from './voice.mjs';
+import { DEFAULT_VOICE, VOICES, clipId, installed, openEngine, readSettings, speak, speakable, wav, wavSeconds } from './voice.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -20,9 +20,9 @@ if (!['vscode', 'cursor', 'none'].includes(editor)) quit([`--editor: "${editor}"
 function quit(lines) { console.error(lines.join('\n')); process.exit(1); }
 const run = (...a) => { try { return execFileSync('git', a, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1 << 26 }); } catch { return null; } };
 
-let tour, settings = {};
+let tour;
 try { tour = JSON.parse(readFileSync(tourPath, 'utf8').replace(/^﻿/, '')); } catch (e) { quit([`${tourPath}: ${e.message}`]); }
-try { settings = JSON.parse(readFileSync(join(graspHome(), 'settings.json'), 'utf8').replace(/^﻿/, '')); } catch { /* no settings */ }
+const settings = readSettings();
 let voice = voiceArg ?? tour.voice ?? settings.voice ?? DEFAULT_VOICE;
 if (voice === 'off') voice = 'browser';
 if (voice !== 'browser' && !VOICES[voice]) quit([`voice: "${voice}" is not one of ${Object.keys(VOICES).join(', ')}, browser`]);
@@ -202,7 +202,10 @@ else {
 
 const tpl = readFileSync(join(here, 'template.html'), 'utf8');
 const secs = segs.reduce((n, g) => n + (g.secs ?? words(g.spoken) / 2.6), 0);
-const data = JSON.stringify({ ...tour, voice, words: total, spokenWords: spoken }).replace(/</g, '\\u003c');
+// root: where the code lives, so the editor extension (editor.mjs) can open each stop's file beside the walkthrough.
+const data = JSON.stringify({ ...tour, root: resolve(root), voice, words: total, spokenWords: spoken }).replace(/</g, '\\u003c');
+// The title goes in <title> too, so the editor extension's walkthrough list can read it without parsing the whole page.
+const title = String(tour.title).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 mkdirSync(dirname(out), { recursive: true });
-writeFileSync(out, tpl.replace('__TOUR__', () => data));
+writeFileSync(out, tpl.replace('<title>grasp · explain</title>', () => `<title>${title} · grasp</title>`).replace('__TOUR__', () => data));
 console.log(`${out} · ${total} words on the page · ${spoken} spoken, about ${Math.round(secs / 60)} min · voice: ${note}`);

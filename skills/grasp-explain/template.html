@@ -15,7 +15,8 @@
     --gut:#8c959f; --lit:#2f6fde0d; --sweep:#2f6fde30; --hl:#2f6fde24; --dim:.42;
     --spot:#2f6fde1f; --mark:#ffd84d80;
     --kw:#cf222e; --str:#0a3069; --num:#0550ae; --com:#6e7781; --fn:#8250df; --ty:#953800;
-    --bar:58px;
+    --bar:58px; /* height of whatever is pinned at the top: scrolling stops below it */
+    --mono:ui-monospace,"Cascadia Code","SF Mono",Consolas,monospace;
     color-scheme:light;
   }
   @media (prefers-color-scheme:dark){
@@ -35,17 +36,20 @@
   html{scroll-padding-top:calc(var(--bar) + 12px)}
   body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   main{max-width:1360px;margin:0 auto;padding:20px 24px 32px}
-  code,kbd,.mono,.code,.tabs,.chip,.arrow,.pill,.badge,.eyebrow,h3,.stack,.time,.w.c{font-family:ui-monospace,"Cascadia Code","SF Mono",Consolas,monospace;font-variant-ligatures:none}
+  code,kbd,.mono,.code,.tabs,.chip,.arrow,.pill,.badge,.eyebrow,h3,.stack,.time,.w.c{font-family:var(--mono);font-variant-ligatures:none}
   button{font:inherit;color:inherit;cursor:pointer}
   .eyebrow,h3{font-size:11px;line-height:1.2;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
   .glow{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;animation:glow 1.4s ease-in-out infinite alternate}
   @keyframes glow{to{outline-color:color-mix(in srgb,var(--accent) 35%,transparent)}}
 
   /* player: the voice-over controls, pinned to the top */
-  .player{position:sticky;top:0;z-index:30;min-height:var(--bar);display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:8px max(16px,calc((100vw - 1360px)/2 + 24px));background:color-mix(in srgb,var(--card) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+  .player{position:sticky;top:0;z-index:30;min-height:58px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:8px max(16px,calc((100vw - 1360px)/2 + 24px));background:color-mix(in srgb,var(--card) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
   .player[hidden]{display:none}
   .play{display:inline-flex;align-items:center;gap:8px;min-width:132px;padding:8px 16px 8px 12px;border:0;border-radius:999px;background:var(--accent);color:var(--card);font-weight:650;font-size:13.5px}
   .play:hover{filter:brightness(1.08)}
+  .play.nudge{animation:nudge 1.3s ease-in-out infinite}
+  @keyframes nudge{50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 28%,transparent)}}
+  .hint.start{margin-top:8px;color:var(--ink)}
   .play svg,.ib svg{width:16px;height:16px;fill:currentColor;flex:none}
   .ib{display:grid;place-items:center;width:34px;height:34px;padding:0;border:1px solid var(--rule);border-radius:9px;background:var(--bg)}
   .ib:hover{border-color:var(--accent);color:var(--accent)}
@@ -280,6 +284,50 @@
     .drow>:nth-child(n+3){grid-column:2}
     .time{min-width:0}
   }
+
+  /* Inside VS Code or Cursor (the grasp extension shows this page in a panel beside the editor). The code is in the real editor
+     next door, so this page is the player, the subtitles and the notes, in the editor's own theme. */
+  .host{
+    --bg:var(--vscode-editor-background); --card:var(--vscode-editorWidget-background,var(--vscode-editor-background)); --ink:var(--vscode-editor-foreground);
+    --muted:var(--vscode-descriptionForeground); --rule:var(--vscode-editorWidget-border,var(--vscode-panel-border,#8885));
+    --accent:var(--vscode-textLink-foreground); --code-bg:var(--vscode-textCodeBlock-background,var(--vscode-editor-background));
+    --add:var(--vscode-gitDecoration-addedResourceForeground,#56d364); --del:var(--vscode-gitDecoration-deletedResourceForeground,#ff7b72);
+    --med:var(--vscode-editorWarning-foreground,#e3b341); --low:var(--add); --high:var(--vscode-editorError-foreground,#ff7b72);
+    --you:var(--vscode-editorWarning-foreground,#e3b341); --gut:var(--vscode-editorLineNumber-foreground,#888);
+    --add-bg:color-mix(in srgb,var(--add) 14%,transparent); --del-bg:color-mix(in srgb,var(--del) 14%,transparent); --you-bg:color-mix(in srgb,var(--you) 12%,var(--card));
+    --lit:color-mix(in srgb,var(--accent) 6%,transparent); --hl:color-mix(in srgb,var(--accent) 15%,transparent);
+    --spot:color-mix(in srgb,var(--accent) 13%,transparent); --mark:color-mix(in srgb,var(--you) 30%,transparent);
+    --mono:var(--vscode-editor-font-family,ui-monospace),monospace;
+  }
+  .host body.vscode-light,.host body.vscode-high-contrast-light{color-scheme:light}
+  .host body.vscode-dark,.host body.vscode-high-contrast:not(.vscode-high-contrast-light){color-scheme:dark}
+  .host body{padding:0;font-family:var(--vscode-font-family,system-ui),sans-serif}
+  .host :where(code){color:inherit;background:none;padding:0;border-radius:0}
+  .host main{max-width:780px;padding:12px 16px 28px}
+  .host .dock{position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--rule);box-shadow:0 6px 12px -10px rgba(0,0,0,.45)}
+  .host .player{position:static;padding:10px 16px 8px;gap:8px 10px;background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .host .play{min-width:0;background:var(--vscode-button-background,var(--accent));color:var(--vscode-button-foreground,#fff)}
+  .host .play:hover{background:var(--vscode-button-hoverBackground,var(--accent));filter:none}
+  .host .time{order:1;margin-left:auto;min-width:0}
+  .host .track{order:2;flex:1 1 100%;min-width:0}
+  .host .sel,.host .chk{order:3}
+  .host .sel select{background:var(--vscode-dropdown-background,var(--bg));color:var(--vscode-dropdown-foreground,var(--ink));border-color:var(--vscode-dropdown-border,var(--rule))}
+  .host .caption{min-height:0;padding:8px 16px 12px;border-top:1px solid var(--rule);background:color-mix(in srgb,var(--accent) 5%,var(--bg))}
+  .host .cap{font-size:15.5px}
+  .host #hdefs{margin:0;padding:0 16px 10px;gap:4px;background:color-mix(in srgb,var(--accent) 5%,var(--bg))}
+  .host #hdefs .def{padding:4px 10px;font-size:13px}
+  .host #hdefs .def b{display:inline;margin-right:8px}
+  .host .fab,.host .legend,.host .tabs .open{display:none!important}
+  .host .stage,.host .cards{grid-template-columns:minmax(0,1fr)}
+  .host .narr{position:static;max-height:none}
+  .host h1{font-size:18px}
+  .host .tabs::after{content:"lit up in the editor";margin-left:auto;font-size:11.5px;color:var(--muted)}
+  /* the editor can't show deleted lines, so they still unfold here when the voice talks about them */
+  .host .code{max-height:none;padding:0}
+  .host .lines>:not(.gone){display:none}
+  .host .gone:not([hidden]){padding:2px 0 8px}
+  .host .gone:not([hidden])::before{content:"What these lines replaced";display:block;padding:6px 12px 4px;font:600 10.5px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--del)}
+  .host .row.del span{color:inherit}
   @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -325,6 +373,11 @@
 <script id="tour" type="application/json">__TOUR__</script>
 <script>
 (() => {
+  // Inside VS Code or Cursor, the grasp extension shows this page in a panel beside the real code. The page plays the voice and
+  // says which stop and sentence it's on; the extension opens that file and lights up the same lines in the editor.
+  const HOST = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : null, BOOT = window.__grasp || {};
+  const post = m => { if (HOST) HOST.postMessage(m); };
+  if (HOST) document.documentElement.classList.add('host');
   const T = JSON.parse(document.getElementById('tour').textContent);
   const S = T.stops, DEC = {};
   (T.decisions || []).forEach(d => { DEC[d.id] = d; });
@@ -333,7 +386,10 @@
   const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const STATUS = { new: 'NEW', changed: 'CHANGED', context: 'CONTEXT' };
-  const store = {
+  const store = HOST ? {
+    get(k, d) { const v = (BOOT.settings || {})[k]; return v == null ? d : v; },
+    set(k, v) { post({ type: 'set', key: k, value: v }); }, // kept by the extension: a panel's own storage doesn't last
+  } : {
     get(k, d) { try { const v = localStorage.getItem('grasp.explain.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
     set(k, v) { try { localStorage.setItem('grasp.explain.' + k, JSON.stringify(v)); } catch { /* private window */ } },
   };
@@ -453,7 +509,7 @@
       // Decoration rows between two focus lines stay lit: above line n when n > fa, below it when n < fb.
       const gone = removed[n], pre = n > fa && n <= fb ? ' lit' : '', post = n >= fa && n < fb ? ' lit' : '';
       if (gone) rows += '<div class="row rm' + pre + '" data-line="' + n + '" data-rm="' + n + '"><span class="gut"></span><button class="rmbtn" aria-expanded="false">− ' + gone.length + ' line' + (gone.length > 1 ? 's' : '') +
-        ' removed</button></div><div hidden>' + gone.map(l => '<div class="row del" data-line="' + n + '"><span class="gut">−</span><span class="src">' + (esc(l) || ' ') + '</span></div>').join('') + '</div>';
+        ' removed</button></div><div class="gone" hidden>' + gone.map(l => '<div class="row del" data-line="' + n + '"><span class="gut">−</span><span class="src">' + (esc(l) || ' ') + '</span></div>').join('') + '</div>';
       if (n > b) break;
       if (s.in && s.in.line === n) rows += marker('in', s.in, s.role === 'entry' && 'entry', pre);
       rows += '<div class="row' + (added[n] ? ' add' : '') + (n >= fa && n <= fb ? ' focus' : ' dim') + '" data-line="' + n + '"><span class="gut">' + n +
@@ -547,32 +603,38 @@
   if (!TERMS.length) $('#terms').remove();
 
   // ---- the voice: natural clips, the browser's own voice, or captions only ---------------------
-  const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  const hasSpeech = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  // An editor's panel can have the speech API but no voices, so there the browser voice is offered once one shows up.
   let bvoice = null;
+  const canSpeak = () => (HOST ? !!bvoice : hasSpeech);
   function pickVoice() {
-    if (!canSpeak) return null;
     const score = v => (/natural|neural/i.test(v.name) ? 8 : 0) + (/google/i.test(v.name) ? 4 : 0) + (/online/i.test(v.name) ? 2 : 0) +
       (/aria|ava|jenny|emma|andrew|brian|samantha|daniel/i.test(v.name) ? 1 : 0) + (/en[-_]US/i.test(v.lang) ? 1 : 0);
     return speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)).sort((a, b) => score(b) - score(a))[0] || null;
   }
-  const modes = () => [hasClips && ['natural', 'Natural · ' + (VOICE_NAME[T.voice] || T.voice)], canSpeak && ['browser', 'Browser' + (bvoice ? ' · ' + bvoice.name.replace(/^(Microsoft|Google)\s+/, '').replace(/\s+-\s+.*$/, '').replace(/\s*\(.*?\)/g, '') : '')], ['quiet', 'Captions only']].filter(Boolean);
-  let mode = store.get('voice', hasClips ? 'natural' : canSpeak ? 'browser' : 'quiet');
+  if (hasSpeech) bvoice = pickVoice();
+  const modes = () => [hasClips && ['natural', 'Natural · ' + (VOICE_NAME[T.voice] || T.voice)], canSpeak() && ['browser', 'Browser' + (bvoice ? ' · ' + bvoice.name.replace(/^(Microsoft|Google)\s+/, '').replace(/\s+-\s+.*$/, '').replace(/\s*\(.*?\)/g, '') : '')], ['quiet', 'Captions only']].filter(Boolean);
+  let mode = store.get('voice', hasClips ? 'natural' : canSpeak() ? 'browser' : 'quiet');
   if (!modes().some(m => m[0] === mode)) mode = modes()[0][0];
   let rate = +store.get('rate', 1) || 1, auto = store.get('auto', true) !== false;
   function fillVoices() { $('#voice').innerHTML = modes().map(m => '<option value="' + m[0] + '"' + (m[0] === mode ? ' selected' : '') + '>' + esc(m[1]) + '</option>').join(''); }
-  if (canSpeak) { bvoice = pickVoice(); speechSynthesis.addEventListener('voiceschanged', () => { bvoice = pickVoice(); fillVoices(); }); }
+  if (hasSpeech) speechSynthesis.addEventListener('voiceschanged', () => { bvoice = pickVoice(); fillVoices(); });
 
-  const clips = new Map();
-  function clipFor(src) { let a = clips.get(src); if (!a) { a = new Audio(); a.preload = 'auto'; a.src = src; clips.set(src, a); } return a; }
+  // One element speaks every clip. Editors (and some browsers) let an audio element make sound only after a key press or click
+  // has started it, and an element allowed once stays allowed. A second, silent element fetches the next clip ahead of time.
+  const speaker = new Audio(), ahead = new Audio();
+  speaker.preload = ahead.preload = 'auto';
+  const fetchAhead = src => { if (src && ahead.getAttribute('src') !== src) ahead.src = src; };
   function natural(g, onFrac, onEnd, onFail) {
-    const a = clipFor(g.audio);
+    const a = speaker;
     let raf = 0, dead = false;
     const tick = () => { if (dead) return; if (a.duration) onFrac(a.currentTime / a.duration); raf = requestAnimationFrame(tick); };
-    const go = () => { a.playbackRate = rate; a.play().then(() => { if (!dead && playing) { cancelAnimationFrame(raf); tick(); } }, e => { if (dead || e.name === 'AbortError') return; if (e.name === 'NotAllowedError') blocked(); else { dead = true; onFail(); } }); };
+    const go = () => { a.defaultPlaybackRate = a.playbackRate = rate; a.play().then(() => { if (!dead && playing) { cancelAnimationFrame(raf); tick(); } }, e => { if (dead || e.name === 'AbortError') return; if (e.name === 'NotAllowedError') blocked(); else { dead = true; onFail(); } }); };
     a.onended = () => { cancelAnimationFrame(raf); if (!dead) { dead = true; onFrac(1); onEnd(); } };
     a.onerror = () => { cancelAnimationFrame(raf); if (!dead) { dead = true; onFail(); } };
+    if (a.getAttribute('src') !== g.audio) a.src = g.audio;
     a.currentTime = 0; go();
-    return { pause() { a.pause(); cancelAnimationFrame(raf); }, resume: go, stop() { dead = true; a.pause(); cancelAnimationFrame(raf); a.onended = a.onerror = null; }, rate(r) { a.playbackRate = r; } };
+    return { pause() { a.pause(); cancelAnimationFrame(raf); }, resume: go, stop() { dead = true; a.pause(); cancelAnimationFrame(raf); a.onended = a.onerror = null; }, rate(r) { a.defaultPlaybackRate = a.playbackRate = r; } };
   }
   function browser(g, onFrac, onEnd) {
     const text = g.spoken || g.tok.disp;
@@ -611,9 +673,9 @@
     return { pause() { done += (performance.now() - t0) * rate; cancelAnimationFrame(raf); }, resume() { t0 = performance.now(); tick(); }, stop() { dead = true; cancelAnimationFrame(raf); }, rate() { done += (performance.now() - t0) * rate; t0 = performance.now(); } };
   }
   function voice(g, onFrac, onEnd) {
-    const fallback = () => { handle = canSpeak && mode !== 'quiet' ? browser(g, onFrac, onEnd) : quiet(g, onFrac, onEnd); };
+    const fallback = () => { handle = canSpeak() && mode !== 'quiet' ? browser(g, onFrac, onEnd) : quiet(g, onFrac, onEnd); };
     if (mode === 'natural' && g.audio) return natural(g, onFrac, onEnd, fallback);
-    if (mode !== 'quiet' && canSpeak) return browser(g, onFrac, onEnd);
+    if (mode !== 'quiet' && canSpeak()) return browser(g, onFrac, onEnd);
     return quiet(g, onFrac, onEnd);
   }
 
@@ -626,6 +688,7 @@
     si = Math.max(0, Math.min(scenes.length - 1, si));
     const prev = cur, sc = scenes[si], pane = $('#pane'), old = pane.lastElementChild;
     cur = si; segK = 0; sceneDone = false; shown = new Set();
+    if (HOST) $('#hdefs').innerHTML = '';
     let dir = '';
     if (sc.kind === 'stop' && prev >= 0 && scenes[prev] && scenes[prev].kind === 'stop') { const d = sc.s.depth - scenes[prev].s.depth; dir = d > 0 ? ' into' : d < 0 ? ' outof' : ''; }
     if (old) { if (still) old.remove(); else { old.className = 'ed out'; setTimeout(() => old.remove(), 340); } }
@@ -641,7 +704,14 @@
     const mv = sc.kind === 'stop' ? moveOf(sc.i) : '';
     $('#where').innerHTML = (sc.kind === 'stop' ? 'Stop ' + (sc.i + 1) + ' of ' + S.length + ' · <b>' + esc(sc.s.at) + '</b>' : '<b>' + sc.name + '</b>') +
       (mv ? '<span class="mv">' + mv + '</span>' : '');
-    history.replaceState(null, '', '#' + (sc.kind === 'stop' ? sc.i + 1 : sc.kind === 'intro' ? 'intro' : 'recap'));
+    if (!HOST) history.replaceState(null, '', '#' + (sc.kind === 'stop' ? sc.i + 1 : sc.kind === 'intro' ? 'intro' : 'recap'));
+    tell();
+  }
+  // The extension shows where the walkthrough is, and play or pause, in the editor's status bar.
+  function tell() {
+    if (!HOST || cur < 0) return;
+    const sc = scenes[cur];
+    post({ type: 'state', playing, where: sc.kind === 'stop' ? (sc.i + 1) + '/' + S.length + ' ' + sc.s.at : sc.name });
   }
 
   function cue(si, k) {
@@ -658,7 +728,11 @@
     }
     $('#caption').innerHTML = capTag(sc, g) + '<p class="cap' + (playing ? '' : ' idle') + '">' + rich(g.tok) + '</p>';
     capWords = $$('#caption .w');
-    if (sc.kind === 'stop') { spotlight(g.lines || sc.s.focus, g); follow($('#editor')); }
+    // In the editor the code is next door, so the panel follows the transcript, or the old lines when the voice is on those.
+    // What this sentence lights up: its lines, the names it says in `code`, and the removed lines it's about.
+    const r = sc.kind === 'stop' ? g.lines || sc.s.focus : null, names = namesOf(g.say);
+    const gone = r && g.removed ? (sc.s.removed || []).filter(x => x.before >= r[0] && x.before <= r[1] + 1) : [];
+    if (sc.kind === 'stop') { spotlight(r, gone, names); follow(HOST ? (g.removed && $('.ed:not(.out) .gone:not([hidden])')) || $('.tx li.now') : $('#editor')); }
     else {
       if (g.show) glow(g.show);
       if (g.chip) { const c = sceneOfStop(g.chip - 1); $$('.chip[data-sc="' + c + '"],.mrow[data-sc="' + c + '"]').forEach(e => e.classList.add('glow')); }
@@ -672,6 +746,8 @@
     }
     if (!playing) g.tok.words.forEach(x => { if (x.term) define(x.term); });
     progress(g.t0);
+    // In the editor, the extension lights up the same things on the real code.
+    post({ type: 'cue', kind: sc.kind, stop: sc.kind === 'stop' ? sc.i : null, k, chip: g.chip || null, spot: r, names, gone: gone.map(x => ({ line: x.before, n: x.lines.length })) });
   }
 
   function capTag(sc, g) {
@@ -684,33 +760,37 @@
       (g.removed ? '<span class="old">+ what it replaced</span>' : '') + '<span>' + (segK + 1) + ' of ' + sc.segs.length + '</span></div>';
   }
   const hint = () => '<p class="hint">' + (narrated
-    ? 'Press <b>Play</b> or <kbd>Space</kbd> for the guided walkthrough (' + fmt(TOTAL) + '). It talks you through each stop line by line and moves on by itself. <kbd>←</kbd> <kbd>→</kbd> jump between stops, <kbd>[</kbd> <kbd>]</kbd> between sentences.'
+    ? 'Press <b>Play</b> or <kbd>Space</kbd> for the guided walkthrough (' + fmt(TOTAL) + '). ' + (HOST
+      ? 'It opens each file in the editor beside this panel and lights up the lines as it talks about them.'
+      : 'It talks you through each stop line by line and moves on by itself.') + ' <kbd>←</kbd> <kbd>→</kbd> jump between stops, <kbd>[</kbd> <kbd>]</kbd> between sentences.'
     : 'Use <kbd>←</kbd> <kbd>→</kbd> or the chips above to step through the change.') + '</p>';
 
-  // Light the lines the voice is talking about, box the identifiers it names in `code`, and keep them in view.
-  function spotlight(r, g) {
+  // The identifiers a sentence names in `backticks`; they get a box in the lit lines.
+  const namesOf = say => [...new Set((String(say).match(/`[^`]+`/g) || []).flatMap(c => (c.match(/[A-Za-z_$][\w$]*/g) || []).filter(n => n.length > 1)))];
+  // Light the lines the voice is talking about (r), unfold the removed lines it's about (gone), box the names it says.
+  function spotlight(r, gone, names) {
     const ed = $('#pane').lastElementChild, lines = ed && ed.querySelector('.lines');
     if (!lines) return;
     opened.forEach(b => { b.hidden = true; b.previousElementSibling.querySelector('.rmbtn').setAttribute('aria-expanded', 'false'); });
     opened = [];
-    if (g.removed) ed.querySelectorAll('[data-rm]').forEach(row => {
-      const n = +row.dataset.rm, box = row.nextElementSibling;
-      if (n >= r[0] && n <= r[1] + 1 && box.hidden) { box.hidden = false; row.querySelector('.rmbtn').setAttribute('aria-expanded', 'true'); opened.push(box); }
+    const at = new Set(gone.map(x => x.before));
+    ed.querySelectorAll('[data-rm]').forEach(row => {
+      const box = row.nextElementSibling;
+      if (at.has(+row.dataset.rm) && box.hidden) { box.hidden = false; row.querySelector('.rmbtn').setAttribute('aria-expanded', 'true'); opened.push(box); }
     });
     lines.classList.add('speaking');
     let first = null, last = null;
     lines.querySelectorAll('[data-line]').forEach(el => {
       const n = +el.dataset.line, rm = el.classList.contains('rm') || el.classList.contains('del');
-      const on = (n >= r[0] && n <= r[1]) || !!(rm && g.removed && n === r[1] + 1);
+      const on = (n >= r[0] && n <= r[1]) || (rm && at.has(n));
       el.classList.toggle('spot', on);
       if (on && el.offsetParent) { first = first || el; last = el; }
     });
+    if (HOST) return; // in the editor the code rows are hidden: the extension boxes the names on the real code
     ed.querySelectorAll('mark.tok').forEach(m => m.replaceWith(m.textContent));
     ed.querySelectorAll('.src').forEach(x => x.normalize());
-    const names = new Set();
-    (g.say.match(/`[^`]+`/g) || []).forEach(c => (c.match(/[A-Za-z_$][\w$]*/g) || []).forEach(n => { if (n.length > 1) names.add(n); }));
-    if (names.size) {
-      const re = new RegExp('(?<![\\w$])(' + [...names].map(escRe).join('|') + ')(?![\\w$])', 'g');
+    if (names.length) {
+      const re = new RegExp('(?<![\\w$])(' + names.map(escRe).join('|') + ')(?![\\w$])', 'g');
       lines.querySelectorAll('.row.spot:not(.note) .src').forEach(src => {
         const walk = document.createTreeWalker(src, NodeFilter.SHOW_TEXT), nodes = [];
         while (walk.nextNode()) nodes.push(walk.currentNode);
@@ -748,16 +828,16 @@
   // While playing, the page scrolls to whatever the voice is talking about.
   function follow(el) {
     if (!playing || !el) return;
-    const p = $('#player'), r = el.getBoundingClientRect(), top = (getComputedStyle(p).position === 'sticky' ? p.offsetHeight : 0) + 8;
+    const p = HOST ? $('.dock') : $('#player'), r = el.getBoundingClientRect(), top = (getComputedStyle(p).position === 'sticky' ? p.offsetHeight : 0) + 8;
     if (r.top < top || r.top > innerHeight - 120) el.scrollIntoView({ block: r.height > innerHeight - top ? 'start' : 'center', behavior: still ? 'auto' : 'smooth' });
   }
   function define(t) {
     if (shown.has(t.i)) return;
     shown.add(t.i);
-    const box = $('#defs');
+    const box = $('#hdefs') || $('#defs');
     if (!box) return;
     box.insertAdjacentHTML('afterbegin', '<div class="def"><b>' + esc(t.term) + '</b>' + esc(t.def) + '</div>');
-    while (box.children.length > 3) box.lastElementChild.remove();
+    while (box.children.length > (HOST ? 2 : 3)) box.lastElementChild.remove();
   }
   function karaoke(f) {
     const g = seg();
@@ -784,7 +864,7 @@
     const p = $('.cap'); if (p) p.classList.remove('idle');
     handle = voice(g, karaoke, () => { handle = null; advance(); });
     const n = upcoming();
-    if (n && n.audio && mode === 'natural') clipFor(n.audio);
+    if (n && mode === 'natural') fetchAhead(n.audio);
   }
   function upcoming() { const sc = scenes[cur]; return sc.segs[segK + 1] || (scenes[cur + 1] && scenes[cur + 1].segs[0]); }
   function advance() {
@@ -809,10 +889,22 @@
     else if (sceneDone && cur + 1 < scenes.length) cue(cur + 1, 0);
     else if (!cued) cue(Math.max(0, cur), segK);
     playing = true; button();
+    $('#play').classList.remove('nudge');
     if (handle && handle.resume) handle.resume(); else speakNow();
   }
   function pause() { playing = false; clearTimeout(timer); if (handle) handle.pause(); button(); }
-  function blocked() { playing = false; handle = null; button(); }
+  const toggle = () => (playing ? pause() : play());
+  // → (and the editor's Next Stop): at the end of a stop with auto-advance off, carry on; otherwise go to the next stop.
+  const onward = () => (sceneDone ? play() : goScene(cur + 1));
+  // The editor or browser refused sound because nothing in the page was clicked or pressed yet. One key press fixes it.
+  function blocked() {
+    playing = false; handle = null; button();
+    $('#play').classList.add('nudge');
+    const c = $('#caption');
+    if (!c.querySelector('.start')) c.insertAdjacentHTML('beforeend', '<p class="hint start">Press <kbd>Space</kbd> or click <b>Play</b> to start. ' +
+      (HOST ? 'The editor lets this panel talk only after a key press or click in it.' : 'The browser lets the page talk only after a key press or click.') + '</p>');
+    post({ type: 'blocked' });
+  }
   function stopVoice() { clearTimeout(timer); if (handle) { handle.stop(); handle = null; } }
   function jump(si, k) { stopVoice(); cue(si, k); if (playing) speakNow(); else { const p = $('.cap'); if (p) p.classList.add('idle'); } }
   function goScene(si) { si = Math.max(0, Math.min(scenes.length - 1, si)); if (si === cur && !playing) return; jump(si, 0); }
@@ -825,6 +917,7 @@
   function button() {
     $('#playlbl').textContent = playing ? 'Pause' : finished ? 'Replay' : handle || cur > 0 || segK > 0 ? 'Resume' : 'Play walkthrough';
     $('#playicon').innerHTML = $('#fab svg').innerHTML = playing ? '<path d="M4 2.5h3v11H4zM9 2.5h3v11H9z"/>' : '<path d="M4 2.5v11l9-5.5z"/>';
+    tell();
   }
   function moveToken(si) {
     const c = $('.chip[data-sc="' + si + '"]'), t = $('#token');
@@ -848,8 +941,8 @@
     if ($('#rate').selectedIndex < 0) { rate = 1; $('#rate').value = '1'; }
     $('#auto').checked = auto;
   }
-  $('#play').addEventListener('click', () => (playing ? pause() : play()));
-  $('#fab').addEventListener('click', () => (playing ? pause() : play()));
+  $('#play').addEventListener('click', toggle);
+  $('#fab').addEventListener('click', toggle);
   $('#back').addEventListener('click', () => stepSeg(-1));
   $('#fwd').addEventListener('click', () => stepSeg(1));
   $('#bar').addEventListener('click', e => {
@@ -876,20 +969,31 @@
   });
   addEventListener('keydown', e => {
     if (e.altKey || e.ctrlKey || e.metaKey || e.target.matches('input,select,textarea')) return;
-    if ((e.key === ' ' || e.key === 'k') && narrated) { if (e.target.matches('button') && e.key === ' ') return; e.preventDefault(); playing ? pause() : play(); return; }
+    if ((e.key === ' ' || e.key === 'k') && narrated) { if (e.target.matches('button') && e.key === ' ') return; e.preventDefault(); toggle(); return; }
     if (e.key === '[' || e.key === ']') { e.preventDefault(); stepSeg(e.key === ']' ? 1 : -1); return; }
     if (e.shiftKey) return;
     const k = { ArrowRight: cur + 1, ArrowLeft: cur - 1, Home: 0, End: scenes.length - 1 }[e.key];
     if (k === undefined) return;
     e.preventDefault();
-    if (e.key === 'ArrowRight' && sceneDone) { play(); return; }
-    goScene(k);
+    if (e.key === 'ArrowRight') onward(); else goScene(k);
   });
   $('#story').addEventListener('mouseover', e => { const li = e.target.closest('.notes li[data-line]'); lightLine(li && li.dataset.line); });
   $('#story').addEventListener('mouseleave', () => lightLine(null));
   addEventListener('hashchange', () => { const si = fromHash(); if (si !== cur) goScene(si); });
   addEventListener('resize', () => moveToken(cur));
-  addEventListener('pagehide', () => { if (canSpeak) speechSynthesis.cancel(); });
+  addEventListener('pagehide', () => { if (hasSpeech) speechSynthesis.cancel(); });
+  if (HOST) {
+    // Player, subtitle and definitions stay pinned at the top of the panel; the editor's status bar and commands drive it too.
+    const dock = document.createElement('div');
+    dock.className = 'dock';
+    dock.append($('#player'), $('#caption'));
+    dock.insertAdjacentHTML('beforeend', '<div class="defs" id="hdefs"></div>');
+    document.body.prepend(dock);
+    let pinned = 0; // the dock is what's pinned at the top here, so --bar is its height (set only when it changes)
+    new ResizeObserver(() => { if (dock.offsetHeight !== pinned) document.documentElement.style.setProperty('--bar', (pinned = dock.offsetHeight) + 'px'); }).observe(dock);
+    const COMMANDS = { toggle, next: onward, prev: () => goScene(cur - 1), fwd: () => stepSeg(1), back: () => stepSeg(-1) };
+    addEventListener('message', e => { const m = e.data || {}; if (m.type === 'cmd' && COMMANDS[m.cmd]) COMMANDS[m.cmd](); });
+  }
 
   function fromHash() {
     const h = location.hash.slice(1);
@@ -904,6 +1008,8 @@
   else $('#caption').hidden = true;
   $('#token').offsetWidth;
   $('#token').classList.add('ready');
+  // In the editor: the extension shows stop 1's code, then starts the walkthrough (the grasp.autoplay setting).
+  post({ type: 'ready' });
 })();
 </script>
 </body>

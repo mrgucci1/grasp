@@ -22,7 +22,7 @@ grill ──► build ──► explain ──► quiz ──► merge
 | `grasp-grill` | Maps the decisions a task needs and asks them as dialogs, up to 3 per round. Each shows the options, their trade-offs, evidence from your code, and a recommendation. You make the call. | 10–20 min |
 | `grasp-guide` | Writes the scaffolding, puts a `TODO(human)` task card in the code where you write, and opens it in your editor. Quick actions add a hint, pseudocode or boilerplate, and the review asks questions before any fix. | 20–60 min |
 | `grasp-pm` | Builds a big task with sub-agents, with the agent as project manager. You confirm the split first: the parts, the model that builds each, and the contracts between them. A board in your journal shows who is building what, and every choice a sub-agent made on its own comes back to you as a dialog. | 25–40 min, plus the build |
-| `grasp-explain` | Builds a private, narrated walkthrough of the change. Press Play and a natural voice follows one real input from entry point to exit point. It steps into each method the path calls, explains the code line by line while highlighting it, defines each term as it comes up, and moves on by itself. Each stop marks where data comes in and leaves, shows what the new code replaced, and opens in your editor. | 8–20 min to listen, 5 to skim |
+| `grasp-explain` | Builds a private, narrated walkthrough of the change. Press Play and a natural voice follows one real input from entry point to exit point. It steps into each method the path calls, explains the code line by line while highlighting it, defines each term as it comes up, and moves on by itself. Each stop marks where data comes in and leaves, and shows what the new code replaced. In VS Code or Cursor it plays beside your real code, and the editor opens each file and lights up the lines as the voice reaches them. | 8–20 min to listen, 5 to skim |
 | `grasp-quiz` | Asks 5 multiple-choice questions (why, predict, break), one dialog at a time, with a follow-up on a miss. `page` opens them as a clickable page that sends the score back. The pass mark is 80%, and misses become review cards. | 5–10 min |
 | `grasp-teach` | Teaches one concept with examples from your codebase and a quick multiple-choice exercise. `review` runs the cards that are due (spaced repetition). | 5–10 min |
 | `grasp-why` | Answers "why is this code like this?" from your journals, git history, and past sessions, and keeps what was recorded apart from what it infers. | 1 min |
@@ -39,6 +39,8 @@ Run the installer from this folder:
 ```
 
 The installer also sets up the walkthrough voice: [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) (Apache-2.0), a small text-to-speech model that runs on your machine, so nothing you build is sent anywhere. It goes in `~/.grasp/_voice` and takes about 750 MB, downloaded once, with exact package versions from a lockfile. `./install.ps1 -NoVoice` or `./install.sh --no-voice` skips it; the walkthrough then speaks with your browser's voice, which sounds best in Edge. To add the voice later, run `node ~/.claude/skills/grasp-explain/voice.mjs install`.
+
+If VS Code or Cursor is installed, the installer adds grasp's walkthrough extension to it (about 20 KB, no dependencies), so walkthroughs play beside your real code. It finds the editor through its `code` or `cursor` command; on a Mac, run *Shell Command: Install 'code' command in PATH* in VS Code first. `-NoEditor` or `--no-editor` skips it, and walkthroughs then open in the browser. To add it later, run `node ~/.claude/skills/grasp-explain/editor.mjs install`.
 
 It copies the skills to `~/.claude/skills`, which Claude Code and OpenCode both read, and adds `/grasp` commands for OpenCode to `~/.config/opencode/commands`. Run it again to update. `./install.ps1 -Uninstall` or `./install.sh --uninstall` removes the skills and commands and leaves your journals alone.
 
@@ -110,6 +112,17 @@ Subtitles under the code mark each word as it's spoken. The side panel holds the
 
 Speed goes from 0.85× to 1.75×. *Voice* switches between the natural voice, your browser's voice, and captions only, which plays silently at reading pace.
 
+### In VS Code or Cursor
+
+With the extension installed, `grasp-explain` opens your editor on the repo instead of the browser, and plays the walkthrough in a panel beside the code. Press Space in the panel to start; the editor lets a panel play sound only after a key press or click in it. Then the editor follows the voice:
+
+- It opens each stop's file, and switches files when the walkthrough steps into a method and back out.
+- It lights up the lines being discussed, fades the rest, and boxes each name the voice says.
+- Labels beside the code mark where data comes in (◀), where it leaves (▶), and the stop's notes (●). New lines get a green mark in the gutter.
+- Removed code can't be shown in the editor, so it unfolds in the panel, and a dashed line marks where it was.
+
+The panel holds the same player, subtitles, definitions and transcript as the browser page, in your editor's theme. The status bar shows where you are; click it, or press Ctrl+Alt+Space, to pause and play from the editor. To replay a walkthrough later, run **grasp: Open Walkthrough…** from the Command Palette. If you edit a file after the walkthrough is built, the highlights find the moved lines again.
+
 ## How grasp asks
 
 Every question comes through your agent's question dialog, with the recommended option first: pick with the arrow keys and Enter. Choose Other to type your own answer or ask a question. 🔒 decisions, the hard-to-reverse ones, get one more question on why your choice wins. Where an agent has no dialog, or blocks it in the current mode, grasp posts a numbered list and you reply with a number.
@@ -123,7 +136,8 @@ Every question comes through your agent's question dialog, with the recommended 
 | Quiz page | `<repo>/<branch>/quiz.json`, `quiz.html`, `quiz-result.json` |
 | Review deck | `deck.md` |
 | Voice engine | `_voice/`: the Kokoro model and its runtime, shared by every walkthrough |
-| Settings | `settings.json`, such as the editor grasp opens files in (`"editor": "vscode"`) and the walkthrough voice (`"voice": "am_michael"`, or `"browser"`; `node ~/.claude/skills/grasp-explain/voice.mjs voices` lists them) |
+| Editor hand-off | `_editor/open.json`: the walkthrough to open next. The editor window with that repo picks it up and deletes it, and after two minutes it's ignored. It's always under `~/.grasp`, even with `GRASP_HOME` set, so an editor started without that variable still finds it |
+| Settings | `settings.json`, such as the editor grasp opens files in (`"editor": "vscode"`), where walkthroughs play (`"walkthrough": "browser"`, or `"vscode"`, `"cursor"`), and the walkthrough voice (`"voice": "am_michael"`, or `"browser"`; `node ~/.claude/skills/grasp-explain/voice.mjs voices` lists them) |
 
 Set `GRASP_HOME` to keep them somewhere else.
 
@@ -153,7 +167,7 @@ The journal records each decision, the options you rejected, and your reasons in
 
 ## Status
 
-Version 0.4.0. On Windows with Claude Code, the walkthrough builder and its page, and the quiz page with its result hand-off, have been tested on a demo repo. The narrated walkthrough was tested in headless Chrome on the same demo: the natural voice, captions-only mode, stepping into and out of methods, auto-advance, seeking, light and dark themes, and phone width. The browser-voice fallback hasn't been tested in a real browser yet. The dialog-driven grill, guide and quiz flows are new and have not been run end to end yet. Neither has pm mode (`grasp-pm`), which is written for Claude Code's sub-agents. OpenCode reads the same `~/.claude/skills` folder. Codex does not, so it needs the skills CLI step under *Install*. omp can load them from Claude Code's folder, though that may need switching on in its settings. None of the three has been tried.
+Version 0.5.0. On Windows with Claude Code, the walkthrough builder and its page, and the quiz page with its result hand-off, have been tested on a demo repo. The narrated walkthrough was tested in headless Chrome on the same demo: the natural voice, captions-only mode, stepping into and out of methods, auto-advance, seeking, light and dark themes, and phone width. The VS Code extension was tested end to end in VS Code 1.146 on Windows: the hand-off from `grasp-explain`, the start after one key press, playing across clips, the editor following each stop and stepping into methods, removed lines, the status bar, and a live theme switch. Cursor passed the same test except playing sound, which a fresh Cursor profile hides behind its sign-in screen. macOS and Linux haven't been tried with it. The browser-voice fallback hasn't been tested in a real browser yet. The dialog-driven grill, guide and quiz flows are new and have not been run end to end yet. Neither has pm mode (`grasp-pm`), which is written for Claude Code's sub-agents. OpenCode reads the same `~/.claude/skills` folder. Codex does not, so it needs the skills CLI step under *Install*. omp can load them from Claude Code's folder, though that may need switching on in its settings. None of the three has been tried.
 
 ## License
 

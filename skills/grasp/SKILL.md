@@ -6,7 +6,7 @@ license: MIT
 compatibility: Any agent with Agent Skills support (Claude Code, OpenCode, Codex). Needs git and a shell, and Node 18+ for the walkthrough, its voice and the quiz page.
 metadata:
   suite: grasp
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # grasp

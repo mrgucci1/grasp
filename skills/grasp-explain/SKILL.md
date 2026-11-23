@@ -1,16 +1,16 @@
 ---
 name: grasp-explain
-description: Step 3 · a narrated walkthrough of the change on real code, entry point to exit point. A natural voice talks the user through every stop line by line, highlighting the code as it speaks, stepping into the methods the path calls, defining each term as it comes up, and moving on by itself. Builds a private, self-contained HTML player (code, call stack, subtitles, transcript, decisions, risks, words to know) under ~/.grasp and opens it. Use for "explain this change", "walk me through what changed", "talk me through the code", "visualize the diff", "explain everything", or as step 3 of grasp.
+description: Step 3 · a narrated walkthrough of the change on real code, entry point to exit point. A natural voice talks the user through every stop line by line, highlighting the code as it speaks, stepping into the methods the path calls, defining each term as it comes up, and moving on by itself. Builds a private, self-contained HTML player (code, call stack, subtitles, transcript, decisions, risks, words to know) under ~/.grasp and opens it, in VS Code or Cursor beside the real code when grasp's extension is installed, otherwise in the browser. Use for "explain this change", "walk me through what changed", "talk me through the code", "visualize the diff", "explain everything", or as step 3 of grasp.
 argument-hint: "[base branch | commit range]"
 license: MIT
 metadata:
   suite: grasp
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # grasp-explain
 
-You write `tour.json`: the path through the change, plus the script a voice reads over it. You write no code and no HTML. `build.mjs` reads the code from the working tree, marks the diff, checks the budgets, turns each spoken segment into a clip with the bundled voice (Kokoro, running on this machine), and writes `explain.html`, a player that talks the user through the change, highlighting each line as it's discussed.
+You write `tour.json`: the path through the change, plus the script a voice reads over it. You write no code and no HTML. `build.mjs` reads the code from the working tree, marks the diff, checks the budgets, turns each spoken segment into a clip with the bundled voice (Kokoro, running on this machine), and writes `explain.html`, a player that talks the user through the change, highlighting each line as it's discussed. With grasp's editor extension, the same player runs in a panel inside VS Code or Cursor, and the editor itself opens each file and lights up the lines as the voice reaches them.
 
 The voice-over is the explanation, so it carries the depth. The page text stays short.
 
@@ -149,6 +149,10 @@ No `node`? Copy `template.html` (beside this file) to `explain.html` next to tou
 
 ## 6. Open, journal, hand back
 
-1. **Open** the page unless the user said not to or you're running non-interactively. Print the path either way, and say: "Press Play (or Space) and it talks you through it, about N minutes." Windows: `Start-Process "<path>"` in PowerShell, or `start "" "<path>"`. macOS: `open "<path>"`. Linux: `xdg-open "<path>"`.
+1. **Open** it unless the user said not to or you're running non-interactively: `node "<this skill's folder>/editor.mjs" open "<path to explain.html>"`. Print the path either way.
+   - If grasp's extension is in VS Code (or Cursor), this opens the editor on the repo and plays the walkthrough in a panel beside the real code. The editor opens each file, lights up the lines and steps into the methods along with the voice. Say, naming the editor it printed: "It's open in VS Code beside the code, about N minutes. Press Space in the panel to start." The editor allows sound only after a key press in the panel.
+   - Otherwise it opens the page in the browser, and prints why. Say: "Press Play (or Space) and it talks you through it, about N minutes." If the reason is that the extension isn't installed, add one line: "To play it beside the code in VS Code, run `node <this skill's folder>/editor.mjs install` once." Don't install it unasked.
+   - `"walkthrough": "browser"` (or `vscode`, `cursor`) in `<home>/settings.json` pins where it opens. `editor.mjs` reads it itself.
+   - No `node`: Windows `Start-Process "<path>"` in PowerShell, or `start "" "<path>"`; macOS `open "<path>"`; Linux `xdg-open "<path>"`.
 2. **Journal:** replace *Files* with the `--stat` summary, add `explain.html · <yyyy-mm-dd> · base <short sha> · <N> min narrated` to *Explain*, and tick `explain` in *Status*.
 3. **Hand back.** Ask one question with your harness's question tool (`AskUserQuestion` in Claude Code, `question` in OpenCode, `request_user_input` in Codex, `ask` in omp; use a numbered chat list only if there is none): "Walked through it?" Options: `Quiz me` (inside grasp, go on to step 4; standalone, load grasp-quiz), `I have a question` (answer in 5 lines or fewer, naming the stop, then ask again), `Done for now`. In grasp's auto mode, skip the question and go straight to grasp's wrap-up.

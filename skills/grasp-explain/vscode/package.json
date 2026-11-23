@@ -1,0 +1,57 @@
+{
+  "name": "grasp-walkthrough",
+  "displayName": "grasp walkthrough",
+  "description": "Plays a grasp walkthrough beside your real code: a natural voice talks you through the change while the editor opens each file, lights up the lines being discussed and steps into the methods with it.",
+  "version": "0.5.0",
+  "publisher": "grasp",
+  "license": "MIT",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Education", "Other"],
+  "keywords": ["grasp", "walkthrough", "code tour", "explain", "narration"],
+  "main": "./extension.js",
+  "extensionKind": ["workspace"],
+  "activationEvents": ["onStartupFinished"],
+  "capabilities": { "untrustedWorkspaces": { "supported": true } },
+  "contributes": {
+    "commands": [
+      { "command": "grasp.open", "title": "Open Walkthrough…", "category": "grasp" },
+      { "command": "grasp.toggle", "title": "Play or Pause Walkthrough", "category": "grasp" },
+      { "command": "grasp.nextStop", "title": "Next Stop", "category": "grasp" },
+      { "command": "grasp.prevStop", "title": "Previous Stop", "category": "grasp" },
+      { "command": "grasp.nextSentence", "title": "Next Sentence", "category": "grasp" },
+      { "command": "grasp.prevSentence", "title": "Previous Sentence", "category": "grasp" },
+      { "command": "grasp.close", "title": "Close Walkthrough", "category": "grasp" }
+    ],
+    "menus": {
+      "commandPalette": [
+        { "command": "grasp.toggle", "when": "grasp.walkthrough" },
+        { "command": "grasp.nextStop", "when": "grasp.walkthrough" },
+        { "command": "grasp.prevStop", "when": "grasp.walkthrough" },
+        { "command": "grasp.nextSentence", "when": "grasp.walkthrough" },
+        { "command": "grasp.prevSentence", "when": "grasp.walkthrough" },
+        { "command": "grasp.close", "when": "grasp.walkthrough" }
+      ]
+    },
+    "keybindings": [
+      { "command": "grasp.toggle", "key": "ctrl+alt+space", "when": "grasp.walkthrough" }
+    ],
+    "configuration": {
+      "title": "grasp",
+      "properties": {
+        "grasp.autoplay": { "type": "boolean", "default": true, "description": "Start talking as soon as grasp opens a walkthrough here." },
+        "grasp.dimOtherLines": { "type": "boolean", "default": true, "description": "Fade the lines the voice isn't talking about." },
+        "grasp.home": { "type": "string", "default": "", "description": "Where grasp keeps its journals and walkthroughs. Empty means $GRASP_HOME, or ~/.grasp." }
+      }
+    },
+    "colors": [
+      { "id": "grasp.spotlightBackground", "description": "Lines the walkthrough voice is talking about.", "defaults": { "dark": "#7aa7ff2b", "light": "#2f6fde21", "highContrast": "#7aa7ff40", "highContrastLight": "#2f6fde30" } },
+      { "id": "grasp.spotlightBorder", "description": "The bar beside the lines being talked about.", "defaults": { "dark": "#7aa7ff", "light": "#2f6fde", "highContrast": "#7aa7ff", "highContrastLight": "#2f6fde" } },
+      { "id": "grasp.focusBackground", "description": "The rest of the stop's key lines.", "defaults": { "dark": "#7aa7ff10", "light": "#2f6fde0d", "highContrast": "#00000000", "highContrastLight": "#00000000" } },
+      { "id": "grasp.identifierBackground", "description": "An identifier the voice names.", "defaults": { "dark": "#e3b34133", "light": "#ffd84d66", "highContrast": "#00000000", "highContrastLight": "#00000000" } },
+      { "id": "grasp.identifierBorder", "description": "The box around an identifier the voice names.", "defaults": { "dark": "#e3b341cc", "light": "#8a4b00aa", "highContrast": "#e3b341", "highContrastLight": "#8a4b00" } },
+      { "id": "grasp.annotationForeground", "description": "Labels beside the code: where data comes in and leaves, and notes.", "defaults": { "dark": "#7aa7ffcc", "light": "#2f6fdecc", "highContrast": "#7aa7ff", "highContrastLight": "#2f6fde" } },
+      { "id": "grasp.addedForeground", "description": "New lines in this change, in the overview ruler.", "defaults": { "dark": "#56d364", "light": "#1a7f37", "highContrast": "#56d364", "highContrastLight": "#1a7f37" } },
+      { "id": "grasp.removedForeground", "description": "Where lines were removed by this change.", "defaults": { "dark": "#ff7b72", "light": "#b42318", "highContrast": "#ff7b72", "highContrastLight": "#b42318" } }
+    ]
+  }
+}

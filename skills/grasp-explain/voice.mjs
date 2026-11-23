@@ -33,6 +33,10 @@ export const VOICES = {
 };
 
 export const graspHome = () => resolve(process.env.GRASP_HOME || join(homedir(), '.grasp'));
+// <grasp home>/settings.json, or {} when there is none. Editors on Windows may save it with a byte-order mark.
+export function readSettings() {
+  try { return JSON.parse(readFileSync(join(graspHome(), 'settings.json'), 'utf8').replace(/^﻿/, '')); } catch { return {}; }
+}
 export const engineDir = () => join(graspHome(), '_voice');
 const entry = () => join(engineDir(), 'node_modules', 'kokoro-js', 'dist', 'kokoro.js');
 const transformers = () => join(engineDir(), 'node_modules', '@huggingface', 'transformers', 'dist', 'transformers.node.mjs');

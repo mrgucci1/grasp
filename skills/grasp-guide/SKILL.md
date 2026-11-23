@@ -5,7 +5,7 @@ argument-hint: "(no arguments · uses the plan in the journal)"
 license: MIT
 metadata:
   suite: grasp
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # grasp-guide
